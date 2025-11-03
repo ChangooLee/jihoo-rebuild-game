@@ -12,7 +12,7 @@ export default function DashboardPage() {
   const [weeklyStreak, setWeeklyStreak] = useState(0);
   const [totalSessions, setTotalSessions] = useState(0);
   const [weakTags, setWeakTags] = useState<string[]>([]);
-  const [dueCoun, setDueCount] = useState(0);
+  const [dueCount, setDueCount] = useState(0);
   const [badges, setBadges] = useState<string[]>([]);
 
   useEffect(() => {
