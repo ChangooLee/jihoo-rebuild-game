@@ -10,6 +10,10 @@ import { ListeningGame, SpeakingGame } from '@/game/english';
 import { CauseEffect } from '@/game/science';
 import { ScenarioGame } from '@/game/social';
 import { recallBoss } from '@/modules/review/recall-boss';
+import { SessionProgress } from '@/components/SessionProgress';
+import { InstantFeedback } from '@/components/InstantFeedback';
+import { SubjectTimeBar } from '@/components/SubjectTimeBar';
+import { SessionResult } from '@/components/SessionResult';
 import type { SessionPhase, LearningItem, RoundResult } from '@/lib/types';
 import { db } from '@/lib/db';
 import { PersonalizedScheduler } from '@/modules/scheduler/personalized';
@@ -22,6 +26,11 @@ export default function SessionPage() {
   const [roundResults, setRoundResults] = useState<RoundResult[]>([]);
   const [incorrectItems, setIncorrectItems] = useState<string[]>([]);
   const [scheduler] = useState(() => new PersonalizedScheduler());
+  const [phaseElapsed, setPhaseElapsed] = useState(0);
+  const [totalElapsed, setTotalElapsed] = useState(0);
+  const [feedback, setFeedback] = useState<{ type: 'correct' | 'incorrect' | 'complete'; message?: string } | null>(null);
+  const [subjectTimes, setSubjectTimes] = useState({ math: 0, english: 0, science: 0, social: 0 });
+  const [showResult, setShowResult] = useState(false);
 
   useEffect(() => {
     sessionFlow.onPhaseChangeCallback((phase) => {
