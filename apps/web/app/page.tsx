@@ -27,6 +27,18 @@ export default function Home() {
             대시보드
           </Button>
         </Link>
+        
+        <Link href="/report">
+          <Button size="lg" variant="outline" className="w-full">
+            리포트
+          </Button>
+        </Link>
+        
+        <Link href="/settings">
+          <Button size="lg" variant="outline" className="w-full">
+            설정
+          </Button>
+        </Link>
       </div>
     </main>
   )
