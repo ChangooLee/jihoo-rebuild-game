@@ -1,0 +1,2 @@
+export { StroopTask } from './stroop';
+
