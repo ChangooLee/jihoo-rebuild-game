@@ -7,14 +7,16 @@ import { Zap, Target, Brain, GraduationCap } from 'lucide-react';
 type GradeBand = 'ES' | 'MS';
 
 export default function HomePage() {
-  const [gradeBand, setGradeBand] = useState<GradeBand>('ES');
-
   const handleStartQuest = () => {
     window.location.href = '/jihoo/session';
   };
 
   const handleFreePractice = () => {
     window.location.href = '/jihoo/dashboard';
+  };
+
+  const handleDiagnostic = () => {
+    window.location.href = '/jihoo/diagnostic';
   };
 
   return (
@@ -35,33 +37,12 @@ export default function HomePage() {
               </h1>
             </div>
 
-            {/* 학년군 토글 */}
-            <div className="flex items-center gap-2" role="group" aria-label="학년 선택">
-              <span className="text-label-sm text-muted-foreground">학년:</span>
-              <button
-                onClick={() => setGradeBand('ES')}
-                data-analytics="grade_select_es"
-                className={`touch-target px-4 py-2 rounded-lg font-semibold transition-all ${
-                  gradeBand === 'ES'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-card text-foreground hover:bg-muted'
-                }`}
-                aria-pressed={gradeBand === 'ES'}
-              >
-                초등
-              </button>
-              <button
-                onClick={() => setGradeBand('MS')}
-                data-analytics="grade_select_ms"
-                className={`touch-target px-4 py-2 rounded-lg font-semibold transition-all ${
-                  gradeBand === 'MS'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-card text-foreground hover:bg-muted'
-                }`}
-                aria-pressed={gradeBand === 'MS'}
-              >
-                중등
-              </button>
+            {/* 적응형 레벨 안내 */}
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 border border-primary/30">
+              <Target className="w-4 h-4 text-primary" aria-hidden="true" />
+              <span className="text-label-sm text-primary font-medium">
+                자동 레벨 조정
+              </span>
             </div>
 
             {/* 로그인 없이 시작 */}
@@ -82,11 +63,11 @@ export default function HomePage() {
             </h2>
             
             <p className="text-body-md text-muted-foreground mb-8 max-w-2xl mx-auto">
-              ADHD 친화형 학습 게임 · 강제 휴식 · 즉시 보상 · 리콜 보스
+              ADHD 친화형 학습 게임 · 강제 휴식 · 즉시 보상 · 적응형 난이도
             </p>
 
             {/* Primary CTA */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-4">
               <QuestCTA
                 title="오늘 퀘스트 시작"
                 description="10~15분 · 워밍업 → 3라운드 → 리콜 보스"
@@ -100,12 +81,26 @@ export default function HomePage() {
               {/* Secondary CTA */}
               <QuestCTA
                 title="자유 연습"
-                description="과목별 문제 풀이 · 진단 테스트"
+                description="과목별 문제 풀이 · 대시보드"
                 onClick={handleFreePractice}
                 variant="secondary"
                 icon={<GraduationCap />}
                 className="sm:w-80"
               />
+            </div>
+
+            {/* 진단 테스트 안내 */}
+            <div className="flex justify-center mb-8">
+              <button
+                onClick={handleDiagnostic}
+                className="group flex items-center gap-2 px-4 py-2 rounded-lg bg-card border border-border/50 hover:border-primary/50 transition-all"
+                data-analytics="landing_diagnostic"
+              >
+                <Target className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                <span className="text-label-sm text-muted-foreground group-hover:text-foreground transition-colors">
+                  처음이신가요? <span className="text-primary font-medium">진단 테스트</span>로 시작하세요
+                </span>
+              </button>
             </div>
 
             {/* 빠른 통계 (동기부여) */}
@@ -169,11 +164,11 @@ export default function HomePage() {
           {/* 커리큘럼 정렬 */}
           <section className="max-w-4xl mx-auto text-center mb-12" aria-labelledby="curriculum-heading">
             <h2 id="curriculum-heading" className="text-headline-md mb-4">
-              한국 교육과정 정렬
+              적응형 학습 시스템
             </h2>
             <p className="text-body-md text-muted-foreground mb-6">
-              2015/2022 개정 교육과정 기반 · 학년군별 개념 태그 · 
-              진단 테스트로 자동 레벨 조정
+              진단 테스트로 현재 레벨 파악 · 실시간 난이도 조정 (1-up-1-down) · 
+              오답 기반 약점 집중 · 한국 교육과정 정렬
             </p>
             <div className="flex justify-center gap-4 flex-wrap">
               {['수와 연산', '도형', '자료와 가능성', '듣기', '읽기', '문법', '물질', '지구와 우주', '지리', '역사'].map((tag) => (
@@ -213,17 +208,17 @@ export default function HomePage() {
             '@context': 'https://schema.org',
             '@type': 'Course',
             name: 'Jihoo Quest',
-            description: 'ADHD 친화형 학습 게임 - 10~15분 퀘스트로 집중력과 교과 성취',
+            description: 'ADHD 친화형 적응형 학습 게임 - 10~15분 퀘스트로 집중력과 교과 성취',
             provider: {
               '@type': 'Organization',
               name: 'Jihoo Quest',
               url: 'https://moba-project.org/jihoo',
             },
-            educationalLevel: gradeBand === 'ES' ? '초등학교' : '중학교',
+            educationalLevel: '초등학교-중학교',
             teaches: ['수학', '영어', '과학', '사회'],
             timeRequired: 'PT15M',
             interactivityType: 'active',
-            learningResourceType: 'Interactive Game',
+            learningResourceType: 'Adaptive Learning Game',
             accessMode: ['textual', 'visual', 'auditory'],
             accessibilityFeature: [
               'alternativeText',
