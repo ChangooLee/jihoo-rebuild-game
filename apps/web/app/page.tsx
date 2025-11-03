@@ -98,7 +98,7 @@ export default function HomePage() {
               >
                 <Target className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                 <span className="text-label-sm text-muted-foreground group-hover:text-foreground transition-colors">
-                  처음이신가요? <span className="text-primary font-medium">진단 테스트</span>로 시작하세요
+                  처음이신가요? <span className="text-primary font-medium">자동 레벨 조정</span>이 시작됩니다
                 </span>
               </button>
             </div>

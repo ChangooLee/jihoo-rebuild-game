@@ -11,7 +11,7 @@ export interface STTOptions {
 }
 
 export class STTManager {
-  private recognition: SpeechRecognition | null = null;
+  private recognition: any | null = null;
   private isListening: boolean = false;
 
   constructor() {
@@ -48,7 +48,7 @@ export class STTManager {
     return new Promise((resolve, reject) => {
       let finalTranscript = '';
 
-      this.recognition!.onresult = (event) => {
+      this.recognition!.onresult = (event: any) => {
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
@@ -66,7 +66,7 @@ export class STTManager {
         }
       };
 
-      this.recognition!.onerror = (event) => {
+      this.recognition!.onerror = (event: any) => {
         this.isListening = false;
         reject(event.error);
       };

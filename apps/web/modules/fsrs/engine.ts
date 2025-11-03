@@ -31,15 +31,17 @@ export async function recordReview(
   const existing = await db.reviewStates.get(itemId);
   
   const card = existing?.fsrs 
-    ? Card.fromJSON(existing.fsrs)
-    : fsrs.createCard();
+    ? existing.fsrs as any
+    : new Card();
 
   const now = new Date();
-  const scheduledCard = fsrs.repeat(card, now);
+  const rating = outcomeToRating(outcome);
+  const schedulingCards = fsrs.repeat(card, now);
+  const selectedCard = schedulingCards[rating];
 
   const reviewState: ReviewState = {
     itemId,
-    fsrs: scheduledCard.toJSON(),
+    fsrs: selectedCard as any,
     lastOutcome: outcome,
     lastLatencyMs: latencyMs,
   };
@@ -59,8 +61,9 @@ export async function getDueItems(limit: number = 20): Promise<string[]> {
   
   for (const state of allStates) {
     if (state.fsrs) {
-      const card = Card.fromJSON(state.fsrs);
-      if (card.due <= now) {
+      const card = state.fsrs as any;
+      const dueDate = card.due ? new Date(card.due) : null;
+      if (dueDate && dueDate <= now) {
         dueItems.push(state.itemId);
         if (dueItems.length >= limit) break;
       }
@@ -71,18 +74,7 @@ export async function getDueItems(limit: number = 20): Promise<string[]> {
     }
   }
   
-  // due 시간 순으로 정렬
-  return dueItems.sort((a, b) => {
-    const stateA = allStates.find(s => s.itemId === a);
-    const stateB = allStates.find(s => s.itemId === b);
-    
-    if (!stateA?.fsrs) return -1;
-    if (!stateB?.fsrs) return 1;
-    
-    const cardA = Card.fromJSON(stateA.fsrs);
-    const cardB = Card.fromJSON(stateB.fsrs);
-    return cardA.due.getTime() - cardB.due.getTime();
-  });
+  return dueItems;
 }
 
 /**
@@ -91,4 +83,3 @@ export async function getDueItems(limit: number = 20): Promise<string[]> {
 export async function getReviewState(itemId: string): Promise<ReviewState | undefined> {
   return await db.reviewStates.get(itemId);
 }
-
