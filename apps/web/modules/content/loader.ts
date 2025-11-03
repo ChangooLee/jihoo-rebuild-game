@@ -43,11 +43,20 @@ export async function loadLearningItems(paths: string[]): Promise<LearningItem[]
  */
 export async function loadAllLearningItems(): Promise<LearningItem[]> {
   try {
-    // content/index.json 로드
-    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/jihoo';
-    const indexResponse = await fetch(`${basePath}/content/index.json`);
-    const index = await indexResponse.json();
+    // public/content/index.json 로드 (basePath 포함)
+    const basePath = typeof window !== 'undefined' 
+      ? (process.env.NEXT_PUBLIC_BASE_PATH || '/jihoo')
+      : '';
     
+    const indexUrl = `${basePath}/content/index.json`;
+    console.log('Loading content from:', indexUrl);
+    
+    const indexResponse = await fetch(indexUrl);
+    if (!indexResponse.ok) {
+      throw new Error(`Failed to fetch index.json: ${indexResponse.status}`);
+    }
+    
+    const index = await indexResponse.json();
     const allItems: LearningItem[] = [];
     
     // 각 과목별 파일 로드
@@ -55,15 +64,24 @@ export async function loadAllLearningItems(): Promise<LearningItem[]> {
       const files = index[subject];
       for (const file of files) {
         try {
-          const response = await fetch(`${basePath}/content/${file}`);
-          const items = await response.json();
-          allItems.push(...items);
+          const fileUrl = `${basePath}/content/${file}`;
+          console.log(`Loading ${subject}:`, fileUrl);
+          const response = await fetch(fileUrl);
+          
+          if (response.ok) {
+            const items = await response.json();
+            allItems.push(...items);
+            console.log(`✓ Loaded ${items.length} items from ${file}`);
+          } else {
+            console.error(`Failed to load ${file}: ${response.status}`);
+          }
         } catch (error) {
-          console.error(`Failed to load ${file}:`, error);
+          console.error(`Error loading ${file}:`, error);
         }
       }
     }
     
+    console.log(`Total loaded: ${allItems.length} learning items`);
     return allItems;
   } catch (error) {
     console.error('Failed to load content:', error);
