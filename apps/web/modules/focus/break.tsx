@@ -68,39 +68,66 @@ export function BoxBreathing({
     }
   };
 
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const getPhaseText = () => {
+    switch (breathPhase) {
+      case 'inhale': return '들이쉬기';
+      case 'hold1': return '멈춤';
+      case 'exhale': return '내쉬기';
+      case 'hold2': return '멈춤';
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-4">휴식 시간</h2>
-        <p className="text-lg">남은 시간: {remaining}초</p>
+    <div 
+      className="flex flex-col items-center justify-center min-h-screen bg-background p-4"
+      data-analytics="break_screen"
+    >
+      <div className="mb-8 text-center">
+        <h2 className="text-headline-md mb-4">휴식 시간</h2>
+        <p className="text-body-md text-muted-foreground">
+          남은 시간: <span className="font-bold text-primary">{formatTime(remaining)}</span>
+        </p>
       </div>
 
-      <div className="relative w-64 h-64">
-        {/* 호흡 원 */}
+      {/* 호흡 원 - reduced-motion 고려 */}
+      <div className="relative w-64 h-64 mb-8" role="timer" aria-live="polite" aria-label={`${getPhaseText()} - 남은 시간 ${remaining}초`}>
         <div
-          className={`absolute inset-0 rounded-full transition-all duration-1000 ${
+          className={`absolute inset-0 rounded-full ${
+            reducedMotion ? '' : 'transition-all duration-1000'
+          } ${
             breathPhase === 'inhale'
-              ? 'bg-blue-400 scale-125'
+              ? 'bg-primary/60'
               : breathPhase === 'hold1'
-              ? 'bg-blue-500 scale-125'
+              ? 'bg-primary/80'
               : breathPhase === 'exhale'
-              ? 'bg-blue-300 scale-100'
-              : 'bg-blue-400 scale-100'
+              ? 'bg-primary/40'
+              : 'bg-primary/60'
           }`}
           style={{
-            transform: `scale(${0.8 + progress * 0.5})`,
+            transform: reducedMotion ? 'scale(1)' : `scale(${0.8 + progress * 0.5})`,
           }}
         />
         
         {/* 중앙 텍스트 */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-2xl font-bold text-white">
-            {breathPhase === 'inhale' && '들이쉬기'}
-            {breathPhase === 'hold1' && '멈춤'}
-            {breathPhase === 'exhale' && '내쉬기'}
-            {breathPhase === 'hold2' && '멈춤'}
+          <span className="text-title-md font-bold text-foreground">
+            {getPhaseText()}
           </span>
         </div>
+      </div>
+
+      {/* 진행 바 */}
+      <div className="w-64 h-2 bg-muted rounded-full overflow-hidden mb-4">
+        <div
+          className="h-full bg-primary transition-all duration-300"
+          style={{ width: `${((duration - remaining) / duration) * 100}%` }}
+        />
       </div>
 
       {/* 스킵 버튼 */}
@@ -108,15 +135,21 @@ export function BoxBreathing({
         <button
           onClick={handleSkip}
           disabled={!canSkip}
-          className={`mt-8 px-6 py-3 rounded-lg ${
+          data-analytics="break_skip_attempt"
+          className={`touch-target px-6 py-3 rounded-lg font-medium transition-all ${
             canSkip
-              ? 'bg-gray-200 hover:bg-gray-300'
-              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              ? 'bg-muted hover:bg-muted/80 text-foreground'
+              : 'bg-muted/50 text-muted-foreground cursor-not-allowed'
           }`}
+          aria-label={canSkip ? '휴식 끝내기' : `최소 ${minDuration}초 대기 필요`}
         >
           {canSkip ? '계속하기' : `최소 ${minDuration}초 대기 필요`}
         </button>
       )}
+
+      <p className="mt-4 text-label-sm text-muted-foreground text-center max-w-md">
+        박스 호흡법(4-4-4-4)으로 집중력을 회복하세요
+      </p>
     </div>
   );
 }

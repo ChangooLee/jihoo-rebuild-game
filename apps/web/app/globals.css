@@ -2,55 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Pretendard 폰트 */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
+    /* ADHD 친화형 다크 테마 - 저명도 배경 */
+    --background: 222 47% 7%; /* #0B1220 */
+    --foreground: 210 40% 98%;
+    --card: 222 40% 11%; /* #121A2B */
+    --card-foreground: 210 40% 98%;
+    --popover: 222 40% 11%;
+    --popover-foreground: 210 40% 98%;
+    
+    /* 포인트 컬러 - 성취감 & 집중 */
+    --primary: 186 100% 69%; /* #6EE7F2 - 성취 */
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 32% 18%;
+    --secondary-foreground: 210 40% 98%;
+    
+    /* 경고 & 상태 */
+    --warning: 38 92% 50%; /* #F59E0B */
+    --success: 142 76% 36%; /* #10B981 */
+    --error: 0 84% 60%;
+    
+    --muted: 217 32% 18%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 186 100% 69%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
+    --border: 217 32% 18%;
+    --input: 217 32% 18%;
+    --ring: 186 100% 69%;
+    --radius: 0.75rem;
+    
+    /* Material Design Type Scale */
+    --font-display-sm: 2.25rem; /* 36px */
+    --font-headline-md: 1.75rem; /* 28px */
+    --font-title-md: 1.25rem; /* 20px */
+    --font-body-md: 1rem; /* 16px */
+    --font-label-sm: 0.875rem; /* 14px */
     
     /* 접근성 변수 */
-    --line-height: 1.5;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.7;
     --letter-spacing: 0px;
     --animation-scale: 1;
+    --focus-outline-width: 3px;
+    
+    /* 터치 타깃 최소 크기 (WCAG 2.2) */
+    --touch-target-min: 44px;
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+  /* 라이트 모드 (옵션) */
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --primary: 186 100% 35%;
+    --primary-foreground: 210 40% 98%;
   }
 }
 
@@ -58,26 +70,85 @@
   * {
     @apply border-border;
   }
+  
   body {
     @apply bg-background text-foreground;
-    line-height: var(--line-height);
+    font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    line-height: var(--line-height-normal);
     letter-spacing: var(--letter-spacing);
+  }
+  
+  /* 시맨틱 타이포그래피 */
+  h1 {
+    font-size: var(--font-display-sm);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  
+  h2 {
+    font-size: var(--font-headline-md);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  
+  h3 {
+    font-size: var(--font-title-md);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  
+  p, span, div {
+    font-size: var(--font-body-md);
+  }
+  
+  small, .text-label {
+    font-size: var(--font-label-sm);
   }
 }
 
-/* 폰트 클래스 */
+/* 접근성: 포커스 스타일 (WCAG 2.2) */
+@layer base {
+  *:focus-visible {
+    @apply outline-none ring-[3px] ring-ring ring-offset-2 ring-offset-background;
+  }
+  
+  /* 키보드 내비게이션 개선 */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    @apply outline-none ring-[3px] ring-primary ring-offset-2;
+  }
+}
+
+/* 대체 폰트 옵션 (접근성) */
 .font-lexend {
-  font-family: 'Lexend', sans-serif;
+  font-family: 'Lexend', 'Pretendard Variable', sans-serif;
 }
 
 .font-opendyslexic {
-  font-family: 'OpenDyslexic', sans-serif;
+  font-family: 'OpenDyslexic', 'Pretendard Variable', sans-serif;
 }
 
 /* 애니메이션 강도 조절 */
-* {
-  animation-duration: calc(var(--animation-scale) * 1s) !important;
-  transition-duration: calc(var(--animation-scale) * 1s) !important;
+@layer utilities {
+  * {
+    animation-duration: calc(var(--animation-scale) * 1s) !important;
+    transition-duration: calc(var(--animation-scale) * 0.3s) !important;
+  }
+  
+  /* prefers-reduced-motion 지원 (WCAG 2.2) */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
 /* 집중모드 스타일 */
@@ -88,4 +159,57 @@
 
 .focus-mode {
   background-image: none !important;
+}
+
+/* 터치 타깃 최소 크기 (WCAG 2.2) */
+@layer components {
+  .touch-target {
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+  }
+}
+
+/* 유틸리티 클래스 */
+@layer utilities {
+  .text-display-sm {
+    font-size: var(--font-display-sm);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  
+  .text-headline-md {
+    font-size: var(--font-headline-md);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  
+  .text-title-md {
+    font-size: var(--font-title-md);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  
+  .text-body-md {
+    font-size: var(--font-body-md);
+    line-height: 1.5;
+  }
+  
+  .text-label-sm {
+    font-size: var(--font-label-sm);
+    line-height: 1.4;
+  }
+  
+  /* 대비 보장 (WCAG AA) */
+  .text-high-contrast {
+    color: hsl(var(--foreground));
+  }
+  
+  .bg-high-contrast {
+    background-color: hsl(var(--background));
+  }
+}
+
+/* 스킵 링크 (접근성) */
+.skip-link {
+  @apply sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-6 focus:py-3 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:shadow-xl;
 }
