@@ -1,7 +1,7 @@
 {
-  "name": "Jihoo Quest",
+  "name": "Jihoo Quest - 집중력 향상 학습 게임",
   "short_name": "Jihoo Quest",
-  "description": "ADHD 친화형 학습·집중력 게임",
+  "description": "10~15분 퀘스트로 집중력과 교과 성취를 동시에",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -22,4 +22,3 @@
     }
   ]
 }
-
