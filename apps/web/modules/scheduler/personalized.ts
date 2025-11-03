@@ -1,6 +1,24 @@
 import type { Subject, GradeBand, LearningItem } from '@/lib/types';
 import { db } from '@/lib/db';
 import { getDueItems } from '@/modules/fsrs/engine';
+import { loadAllLearningItems } from '@/modules/content/loader';
+
+// 콘텐츠 캐시
+let contentCache: LearningItem[] | null = null;
+let cacheLoadPromise: Promise<LearningItem[]> | null = null;
+
+async function getContentCache(): Promise<LearningItem[]> {
+  if (contentCache) return contentCache;
+  if (cacheLoadPromise) return cacheLoadPromise;
+  
+  cacheLoadPromise = loadAllLearningItems().then(items => {
+    contentCache = items;
+    console.log(`Loaded ${items.length} learning items`);
+    return items;
+  });
+  
+  return cacheLoadPromise;
+}
 
 export interface SubjectDistribution {
   math: number;      // 기본 40%
@@ -116,24 +134,25 @@ export class PersonalizedScheduler {
     count: number,
     difficultyRange?: { min: number; max: number }
   ): Promise<LearningItem[]> {
-    let query = db.learningItems
-      .where('subject')
-      .equals(subject);
+    // 콘텐츠 캐시에서 로드
+    const allContent = await getContentCache();
     
+    // 과목 필터링
+    let filtered = allContent.filter(item => item.subject === subject);
+    
+    // 학년군 필터링
     if (this.config.gradeBand) {
-      query = query.filter(item => 
+      filtered = filtered.filter(item => 
         item.gradeBand.includes(this.config.gradeBand!)
       );
     }
-    
-    const allItems = await query.toArray();
     
     // 약점 태그 우선 선택
     let prioritized: LearningItem[] = [];
     let others: LearningItem[] = [];
     
     if (this.config.weakTags && this.config.weakTags.length > 0) {
-      for (const item of allItems) {
+      for (const item of filtered) {
         const hasWeakTag = item.conceptTag.some(tag => 
           this.config.weakTags!.includes(tag)
         );
@@ -144,7 +163,7 @@ export class PersonalizedScheduler {
         }
       }
     } else {
-      others = allItems;
+      others = filtered;
     }
     
     // 난이도 필터

@@ -42,8 +42,32 @@ export async function loadLearningItems(paths: string[]): Promise<LearningItem[]
  * 콘텐츠 디렉토리에서 모든 LearningItem을 로드합니다.
  */
 export async function loadAllLearningItems(): Promise<LearningItem[]> {
-  // 나중에 동적으로 로드하도록 구현
-  // 현재는 빈 배열 반환
-  return [];
+  try {
+    // content/index.json 로드
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/jihoo';
+    const indexResponse = await fetch(`${basePath}/content/index.json`);
+    const index = await indexResponse.json();
+    
+    const allItems: LearningItem[] = [];
+    
+    // 각 과목별 파일 로드
+    for (const subject of Object.keys(index)) {
+      const files = index[subject];
+      for (const file of files) {
+        try {
+          const response = await fetch(`${basePath}/content/${file}`);
+          const items = await response.json();
+          allItems.push(...items);
+        } catch (error) {
+          console.error(`Failed to load ${file}:`, error);
+        }
+      }
+    }
+    
+    return allItems;
+  } catch (error) {
+    console.error('Failed to load content:', error);
+    return [];
+  }
 }
 
