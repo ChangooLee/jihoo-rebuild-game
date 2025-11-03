@@ -24,18 +24,18 @@ jobs:
           cd tools
           pip install -r requirements.txt
       
-      - name: Generate content (all subjects)
-        run: |
-          cd tools
-          # 주차별 시드 오프셋
-          SEED_OFFSET=$(($(date +%W) * 30))
-          echo "Week: $(date +%W), Offset: $SEED_OFFSET"
-          
-          # 과목별 생성 (40:30:15:15 비율 목표)
-          python3 generators/math/build_bank.py --seeds 40 --offset $SEED_OFFSET
-          python3 generators/english/build_bank.py --seeds 30 --offset $SEED_OFFSET
-          python3 generators/science/build_bank.py --seeds 15 --offset $SEED_OFFSET
-          python3 generators/social/build_bank.py --seeds 15 --offset $SEED_OFFSET
+          - name: Generate content (all subjects)
+            run: |
+              cd tools
+              # 주차별 시드 오프셋
+              SEED_OFFSET=$(($(date +%W) * 30))
+              echo "Week: $(date +%W), Offset: $SEED_OFFSET"
+              
+              # 과목별 생성 (균형 조정: 수학 집중)
+              python3 generators/math/build_bank.py --seeds 80 --offset $SEED_OFFSET
+              python3 generators/english/build_bank.py --seeds 15 --offset $SEED_OFFSET
+              python3 generators/science/build_bank.py --seeds 3 --offset $SEED_OFFSET
+              python3 generators/social/build_bank.py --seeds 2 --offset $SEED_OFFSET
       
       - name: Validate generated content
         run: |
