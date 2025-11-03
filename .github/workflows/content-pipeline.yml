@@ -24,12 +24,18 @@ jobs:
           cd tools
           pip install -r requirements.txt
       
-      - name: Generate math content (incremental)
+      - name: Generate content (all subjects)
         run: |
           cd tools
-          # 매주 시드 변경으로 새 문항 생성
-          SEED_OFFSET=$(($(date +%W) * 50))
-          python3 generators/math/build_bank.py --seeds 50 --offset $SEED_OFFSET
+          # 주차별 시드 오프셋
+          SEED_OFFSET=$(($(date +%W) * 30))
+          echo "Week: $(date +%W), Offset: $SEED_OFFSET"
+          
+          # 과목별 생성 (40:30:15:15 비율 목표)
+          python3 generators/math/build_bank.py --seeds 40 --offset $SEED_OFFSET
+          python3 generators/english/build_bank.py --seeds 30 --offset $SEED_OFFSET
+          python3 generators/science/build_bank.py --seeds 15 --offset $SEED_OFFSET
+          python3 generators/social/build_bank.py --seeds 15 --offset $SEED_OFFSET
       
       - name: Validate generated content
         run: |

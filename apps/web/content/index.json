@@ -5,8 +5,23 @@
     "math/math.es56.generated.json",
     "math/math.ms1.generated.json"
   ],
-  "english": ["english/es56.core.json", "english/ms1.core.json"],
-  "science": ["science/es56.core.json", "science/ms1.core.json"],
-  "social": ["social/es.core.json", "social/ms1.core.json"]
+  "english": [
+    "english/es56.core.json",
+    "english/ms1.core.json",
+    "english/english.es56.generated.json",
+    "english/english.ms1.generated.json"
+  ],
+  "science": [
+    "science/es56.core.json",
+    "science/ms1.core.json",
+    "science/science.es56.generated.json",
+    "science/science.ms1.generated.json"
+  ],
+  "social": [
+    "social/es.core.json",
+    "social/ms1.core.json",
+    "social/social.es.generated.json",
+    "social/social.ms1.generated.json"
+  ]
 }
 
