@@ -38,21 +38,17 @@ export default function NotificationPage() {
   };
 
   const handleTestNotification = async () => {
-    if (permission === 'granted') {
+    // 최신 권한 상태 확인
+    const currentPermission = await reminderManager.checkPermission();
+    setPermission(currentPermission);
+    
+    if (currentPermission === 'granted') {
       new Notification('Jihoo Quest', {
         body: '테스트 알림입니다.',
         icon: '/icon-192x192.png',
       });
     } else {
-      await checkPermission();
-      if (permission === 'granted') {
-        new Notification('Jihoo Quest', {
-          body: '테스트 알림입니다.',
-          icon: '/icon-192x192.png',
-        });
-      } else {
-        alert('알림 권한이 필요합니다. 브라우저 설정에서 권한을 허용해주세요.');
-      }
+      alert('알림 권한이 필요합니다. 브라우저 설정에서 권한을 허용해주세요.');
     }
   };
 
