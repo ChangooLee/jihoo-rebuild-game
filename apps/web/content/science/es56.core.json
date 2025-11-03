@@ -1,0 +1,111 @@
+[
+  {
+    "id": "S-ES56-STATE-001",
+    "subject": "science",
+    "area": "science.물질",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["상변화", "물의상태"],
+    "stem": { "type": "text", "payload": "얼음이 녹으면?" },
+    "choices": [
+      { "id": "a", "label": "수증기" },
+      { "id": "b", "label": "물" },
+      { "id": "c", "label": "눈" },
+      { "id": "d", "label": "서리" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["고체 → 액체"],
+    "difficulty": 2,
+    "variants": ["S-ES56-STATE-001-V1"]
+  },
+  {
+    "id": "S-ES56-CIRCUIT-001",
+    "subject": "science",
+    "area": "science.에너지",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["전기회로", "회로구성"],
+    "stem": { "type": "text", "payload": "전구에 불이 켜지려면?" },
+    "choices": [
+      { "id": "a", "label": "회로가 열려있어야" },
+      { "id": "b", "label": "회로가 닫혀있어야" },
+      { "id": "c", "label": "전선만 있으면" },
+      { "id": "d", "label": "전구만 있으면" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["전류가 흘러야 함"],
+    "difficulty": 3,
+    "variants": ["S-ES56-CIRCUIT-001-V1", "S-ES56-CIRCUIT-001-V2"]
+  },
+  {
+    "id": "S-ES56-WEATHER-001",
+    "subject": "science",
+    "area": "science.지구와우주",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["기상", "구름"],
+    "stem": { "type": "text", "payload": "구름은 무엇으로 만들어지나?" },
+    "choices": [
+      { "id": "a", "label": "모래" },
+      { "id": "b", "label": "물방울" },
+      { "id": "c", "label": "연기" },
+      { "id": "d", "label": "먼지" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["물의 증발과 응결"],
+    "difficulty": 2,
+    "variants": ["S-ES56-WEATHER-001-V1"]
+  },
+  {
+    "id": "S-ES56-PLANT-001",
+    "subject": "science",
+    "area": "science.생명",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["식물", "광합성"],
+    "stem": { "type": "text", "payload": "식물이 자라는 데 필요한 것은?" },
+    "choices": [
+      { "id": "a", "label": "햇빛, 물, 공기" },
+      { "id": "b", "label": "달빛, 우유" },
+      { "id": "c", "label": "전기, 기름" },
+      { "id": "d", "label": "소금, 설탕" }
+    ],
+    "answer": { "kind": "mcq", "value": "a" },
+    "hints": ["광합성에 필요한 요소"],
+    "difficulty": 2,
+    "variants": ["S-ES56-PLANT-001-V1"]
+  },
+  {
+    "id": "S-ES56-MAGNET-001",
+    "subject": "science",
+    "area": "science.에너지",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["자석", "자기력"],
+    "stem": { "type": "text", "payload": "자석이 끌어당기는 것은?" },
+    "choices": [
+      { "id": "a", "label": "나무" },
+      { "id": "b", "label": "플라스틱" },
+      { "id": "c", "label": "쇠붙이" },
+      { "id": "d", "label": "종이" }
+    ],
+    "answer": { "kind": "mcq", "value": "c" },
+    "hints": ["금속류"],
+    "difficulty": 2,
+    "variants": ["S-ES56-MAGNET-001-V1"]
+  },
+  {
+    "id": "S-ES56-SEASON-001",
+    "subject": "science",
+    "area": "science.지구와우주",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["계절", "지구운동"],
+    "stem": { "type": "text", "payload": "계절이 생기는 이유는?" },
+    "choices": [
+      { "id": "a", "label": "지구의 자전" },
+      { "id": "b", "label": "지구의 공전과 자전축 기울기" },
+      { "id": "c", "label": "태양의 움직임" },
+      { "id": "d", "label": "달의 움직임" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["지구축이 기울어져 있음"],
+    "difficulty": 4,
+    "variants": ["S-ES56-SEASON-001-V1"]
+  }
+]
+

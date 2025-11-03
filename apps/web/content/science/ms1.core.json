@@ -1,0 +1,111 @@
+[
+  {
+    "id": "S-MS1-PARTICLE-001",
+    "subject": "science",
+    "area": "science.물질",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["입자", "분자"],
+    "stem": { "type": "text", "payload": "물질을 이루는 가장 작은 단위는?" },
+    "choices": [
+      { "id": "a", "label": "세포" },
+      { "id": "b", "label": "원자" },
+      { "id": "c", "label": "분자" },
+      { "id": "d", "label": "이온" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["더 이상 쪼갤 수 없는"],
+    "difficulty": 3,
+    "variants": ["S-MS1-PARTICLE-001-V1"]
+  },
+  {
+    "id": "S-MS1-SPEED-001",
+    "subject": "science",
+    "area": "science.운동",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["속력", "거리와시간"],
+    "stem": { "type": "text", "payload": "100m를 10초에 달렸다. 속력은?" },
+    "choices": [
+      { "id": "a", "label": "5m/s" },
+      { "id": "b", "label": "10m/s" },
+      { "id": "c", "label": "15m/s" },
+      { "id": "d", "label": "20m/s" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["속력 = 거리/시간"],
+    "difficulty": 3,
+    "variants": ["S-MS1-SPEED-001-V1", "S-MS1-SPEED-001-V2"]
+  },
+  {
+    "id": "S-MS1-OCEAN-001",
+    "subject": "science",
+    "area": "science.지구와우주",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["해양", "해류"],
+    "stem": { "type": "text", "payload": "따뜻한 해류의 영향은?" },
+    "choices": [
+      { "id": "a", "label": "기온을 낮춤" },
+      { "id": "b", "label": "기온을 높임" },
+      { "id": "c", "label": "변화 없음" },
+      { "id": "d", "label": "지진 발생" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["따뜻한 물이 열을 전달"],
+    "difficulty": 3,
+    "variants": ["S-MS1-OCEAN-001-V1"]
+  },
+  {
+    "id": "S-MS1-CELL-001",
+    "subject": "science",
+    "area": "science.생명",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["세포", "세포구조"],
+    "stem": { "type": "text", "payload": "세포의 핵심 기능을 하는 것은?" },
+    "choices": [
+      { "id": "a", "label": "세포벽" },
+      { "id": "b", "label": "세포막" },
+      { "id": "c", "label": "핵" },
+      { "id": "d", "label": "엽록체" }
+    ],
+    "answer": { "kind": "mcq", "value": "c" },
+    "hints": ["유전정보 저장"],
+    "difficulty": 3,
+    "variants": ["S-MS1-CELL-001-V1"]
+  },
+  {
+    "id": "S-MS1-FORCE-001",
+    "subject": "science",
+    "area": "science.에너지",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["힘", "작용반작용"],
+    "stem": { "type": "text", "payload": "벽을 밀면 벽도 나를 민다. 이것은?" },
+    "choices": [
+      { "id": "a", "label": "관성의 법칙" },
+      { "id": "b", "label": "작용 반작용의 법칙" },
+      { "id": "c", "label": "가속도의 법칙" },
+      { "id": "d", "label": "중력의 법칙" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["뉴턴의 제3법칙"],
+    "difficulty": 4,
+    "variants": ["S-MS1-FORCE-001-V1"]
+  },
+  {
+    "id": "S-MS1-ENERGY-001",
+    "subject": "science",
+    "area": "science.에너지",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["에너지", "에너지전환"],
+    "stem": { "type": "text", "payload": "전구에서 빛이 나는 것은 무슨 에너지 전환?" },
+    "choices": [
+      { "id": "a", "label": "화학 → 빛" },
+      { "id": "b", "label": "전기 → 빛" },
+      { "id": "c", "label": "열 → 빛" },
+      { "id": "d", "label": "운동 → 빛" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["전기 에너지가 빛으로"],
+    "difficulty": 3,
+    "variants": ["S-MS1-ENERGY-001-V1"]
+  }
+]
+

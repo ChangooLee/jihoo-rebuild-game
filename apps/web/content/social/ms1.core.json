@@ -1,0 +1,111 @@
+[
+  {
+    "id": "SO-MS1-DEMO-001",
+    "subject": "social",
+    "area": "social.정치",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["민주주의", "선거"],
+    "stem": { "type": "text", "payload": "민주주의의 기본 원리는?" },
+    "choices": [
+      { "id": "a", "label": "국민주권" },
+      { "id": "b", "label": "왕권신수설" },
+      { "id": "c", "label": "독재" },
+      { "id": "d", "label": "귀족정치" }
+    ],
+    "answer": { "kind": "mcq", "value": "a" },
+    "hints": ["국민이 주인"],
+    "difficulty": 3,
+    "variants": ["SO-MS1-DEMO-001-V1"]
+  },
+  {
+    "id": "SO-MS1-GEO-001",
+    "subject": "social",
+    "area": "social.지리",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["세계지리", "대륙"],
+    "stem": { "type": "text", "payload": "가장 큰 대륙은?" },
+    "choices": [
+      { "id": "a", "label": "아프리카" },
+      { "id": "b", "label": "유럽" },
+      { "id": "c", "label": "아시아" },
+      { "id": "d", "label": "북아메리카" }
+    ],
+    "answer": { "kind": "mcq", "value": "c" },
+    "hints": ["한국이 속한 대륙"],
+    "difficulty": 2,
+    "variants": ["SO-MS1-GEO-001-V1"]
+  },
+  {
+    "id": "SO-MS1-HIST-001",
+    "subject": "social",
+    "area": "social.역사",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["한국사", "삼국시대"],
+    "stem": { "type": "text", "payload": "삼국시대의 나라는?" },
+    "choices": [
+      { "id": "a", "label": "고구려, 백제, 신라" },
+      { "id": "b", "label": "고려, 조선, 가야" },
+      { "id": "c", "label": "신라, 고려, 조선" },
+      { "id": "d", "label": "백제, 가야, 고려" }
+    ],
+    "answer": { "kind": "mcq", "value": "a" },
+    "hints": ["기원전~7세기"],
+    "difficulty": 2,
+    "variants": ["SO-MS1-HIST-001-V1", "SO-MS1-HIST-001-V2"]
+  },
+  {
+    "id": "SO-MS1-ECON-001",
+    "subject": "social",
+    "area": "social.경제",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["경제", "시장경제"],
+    "stem": { "type": "text", "payload": "시장경제의 특징은?" },
+    "choices": [
+      { "id": "a", "label": "정부가 모든 것을 결정" },
+      { "id": "b", "label": "수요와 공급으로 가격 결정" },
+      { "id": "c", "label": "계획경제" },
+      { "id": "d", "label": "물물교환" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["자유로운 거래"],
+    "difficulty": 3,
+    "variants": ["SO-MS1-ECON-001-V1"]
+  },
+  {
+    "id": "SO-MS1-HUMAN-001",
+    "subject": "social",
+    "area": "social.정치",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["인권", "헌법"],
+    "stem": { "type": "text", "payload": "기본권이 명시된 것은?" },
+    "choices": [
+      { "id": "a", "label": "민법" },
+      { "id": "b", "label": "헌법" },
+      { "id": "c", "label": "형법" },
+      { "id": "d", "label": "상법" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["최고 법"],
+    "difficulty": 3,
+    "variants": ["SO-MS1-HUMAN-001-V1"]
+  },
+  {
+    "id": "SO-MS1-CLIMATE-001",
+    "subject": "social",
+    "area": "social.지리",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["기후", "지리적특성"],
+    "stem": { "type": "text", "payload": "적도 근처의 기후는?" },
+    "choices": [
+      { "id": "a", "label": "온대" },
+      { "id": "b", "label": "한대" },
+      { "id": "c", "label": "열대" },
+      { "id": "d", "label": "건조" }
+    ],
+    "answer": { "kind": "mcq", "value": "c" },
+    "hints": ["일년 내내 더움"],
+    "difficulty": 3,
+    "variants": ["SO-MS1-CLIMATE-001-V1"]
+  }
+]
+

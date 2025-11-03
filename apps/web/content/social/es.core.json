@@ -1,0 +1,111 @@
+[
+  {
+    "id": "SO-ES-RIGHT-001",
+    "subject": "social",
+    "area": "social.정치",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["권리", "의무"],
+    "stem": { "type": "text", "payload": "우리가 가진 기본 권리는?" },
+    "choices": [
+      { "id": "a", "label": "자유권, 평등권" },
+      { "id": "b", "label": "의무만 있음" },
+      { "id": "c", "label": "세금 낼 권리" },
+      { "id": "d", "label": "없음" }
+    ],
+    "answer": { "kind": "mcq", "value": "a" },
+    "hints": ["헌법에 보장된 권리"],
+    "difficulty": 3,
+    "variants": ["SO-ES-RIGHT-001-V1"]
+  },
+  {
+    "id": "SO-ES-MAP-001",
+    "subject": "social",
+    "area": "social.지리",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["지도", "방위"],
+    "stem": { "type": "text", "payload": "지도에서 위쪽은?" },
+    "choices": [
+      { "id": "a", "label": "동쪽" },
+      { "id": "b", "label": "서쪽" },
+      { "id": "c", "label": "남쪽" },
+      { "id": "d", "label": "북쪽" }
+    ],
+    "answer": { "kind": "mcq", "value": "d" },
+    "hints": ["지도의 기본 방향"],
+    "difficulty": 2,
+    "variants": ["SO-ES-MAP-001-V1", "SO-ES-MAP-001-V2"]
+  },
+  {
+    "id": "SO-ES-ECON-001",
+    "subject": "social",
+    "area": "social.경제",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["경제", "수요공급"],
+    "stem": { "type": "text", "payload": "물건이 부족하면 가격은?" },
+    "choices": [
+      { "id": "a", "label": "오른다" },
+      { "id": "b", "label": "내린다" },
+      { "id": "c", "label": "변화없다" },
+      { "id": "d", "label": "없어진다" }
+    ],
+    "answer": { "kind": "mcq", "value": "a" },
+    "hints": ["수요 > 공급이면"],
+    "difficulty": 3,
+    "variants": ["SO-ES-ECON-001-V1"]
+  },
+  {
+    "id": "SO-ES-HIST-001",
+    "subject": "social",
+    "area": "social.역사",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["역사", "한국사"],
+    "stem": { "type": "text", "payload": "한글을 만든 왕은?" },
+    "choices": [
+      { "id": "a", "label": "세종대왕" },
+      { "id": "b", "label": "이순신" },
+      { "id": "c", "label": "광개토대왕" },
+      { "id": "d", "label": "왕건" }
+    ],
+    "answer": { "kind": "mcq", "value": "a" },
+    "hints": ["조선시대 4대 왕"],
+    "difficulty": 2,
+    "variants": ["SO-ES-HIST-001-V1"]
+  },
+  {
+    "id": "SO-ES-CULTURE-001",
+    "subject": "social",
+    "area": "social.문화",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["문화", "다문화"],
+    "stem": { "type": "text", "payload": "다른 나라 문화를 대하는 자세는?" },
+    "choices": [
+      { "id": "a", "label": "무시한다" },
+      { "id": "b", "label": "존중한다" },
+      { "id": "c", "label": "따라하지 않는다" },
+      { "id": "d", "label": "비판한다" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["다양성 인정"],
+    "difficulty": 2,
+    "variants": ["SO-ES-CULTURE-001-V1"]
+  },
+  {
+    "id": "SO-ES-GOV-001",
+    "subject": "social",
+    "area": "social.정치",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["정부", "삼권분립"],
+    "stem": { "type": "text", "payload": "법을 만드는 곳은?" },
+    "choices": [
+      { "id": "a", "label": "법원" },
+      { "id": "b", "label": "국회" },
+      { "id": "c", "label": "청와대" },
+      { "id": "d", "label": "시청" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["입법부"],
+    "difficulty": 3,
+    "variants": ["SO-ES-GOV-001-V1"]
+  }
+]
+

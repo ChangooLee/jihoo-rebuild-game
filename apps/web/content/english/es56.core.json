@@ -1,0 +1,219 @@
+[
+  {
+    "id": "E-ES56-LISTEN-001",
+    "subject": "english",
+    "area": "english.listening",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["듣기", "일상대화"],
+    "stem": { "type": "audio", "payload": "Hello, how are you?" },
+    "choices": [
+      { "id": "a", "label": "I'm fine, thank you." },
+      { "id": "b", "label": "Yes, please." },
+      { "id": "c", "label": "No, thank you." },
+      { "id": "d", "label": "Goodbye." }
+    ],
+    "answer": { "kind": "mcq", "value": "a" },
+    "hints": ["인사에 대한 답변"],
+    "difficulty": 2,
+    "variants": ["E-ES56-LISTEN-001-V1"]
+  },
+  {
+    "id": "E-ES56-VOCAB-001",
+    "subject": "english",
+    "area": "english.vocabulary",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["어휘", "명사"],
+    "stem": { "type": "text", "payload": "'사과'를 영어로?" },
+    "choices": [
+      { "id": "a", "label": "banana" },
+      { "id": "b", "label": "apple" },
+      { "id": "c", "label": "orange" },
+      { "id": "d", "label": "grape" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["빨간색 과일"],
+    "difficulty": 1,
+    "variants": ["E-ES56-VOCAB-001-V1", "E-ES56-VOCAB-001-V2"]
+  },
+  {
+    "id": "E-ES56-GRAMMAR-001",
+    "subject": "english",
+    "area": "english.grammar",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["문법", "be동사"],
+    "stem": { "type": "text", "payload": "I ___ a student. 빈칸에 들어갈 말은?" },
+    "choices": [
+      { "id": "a", "label": "is" },
+      { "id": "b", "label": "am" },
+      { "id": "c", "label": "are" },
+      { "id": "d", "label": "be" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["I와 함께 쓰이는 be동사"],
+    "difficulty": 2,
+    "variants": ["E-ES56-GRAMMAR-001-V1"]
+  },
+  {
+    "id": "E-ES56-READ-001",
+    "subject": "english",
+    "area": "english.reading",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["읽기", "이해"],
+    "stem": { "type": "text", "payload": "This is a pen. What is this?" },
+    "choices": [
+      { "id": "a", "label": "A pen" },
+      { "id": "b", "label": "A pencil" },
+      { "id": "c", "label": "A book" },
+      { "id": "d", "label": "A desk" }
+    ],
+    "answer": { "kind": "mcq", "value": "a" },
+    "hints": ["첫 문장을 읽어보세요"],
+    "difficulty": 2,
+    "variants": ["E-ES56-READ-001-V1"]
+  },
+  {
+    "id": "E-ES56-TENSE-001",
+    "subject": "english",
+    "area": "english.grammar",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["시제", "현재시제"],
+    "stem": { "type": "text", "payload": "She ___ to school every day." },
+    "choices": [
+      { "id": "a", "label": "go" },
+      { "id": "b", "label": "goes" },
+      { "id": "c", "label": "going" },
+      { "id": "d", "label": "went" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["3인칭 단수 현재형"],
+    "difficulty": 3,
+    "variants": ["E-ES56-TENSE-001-V1", "E-ES56-TENSE-001-V2"]
+  },
+  {
+    "id": "E-ES56-VOCAB-002",
+    "subject": "english",
+    "area": "english.vocabulary",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["어휘", "동사"],
+    "stem": { "type": "text", "payload": "'달리다'를 영어로?" },
+    "choices": [
+      { "id": "a", "label": "walk" },
+      { "id": "b", "label": "run" },
+      { "id": "c", "label": "jump" },
+      { "id": "d", "label": "sit" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["빠르게 움직이는 동작"],
+    "difficulty": 2,
+    "variants": ["E-ES56-VOCAB-002-V1"]
+  },
+  {
+    "id": "E-ES56-LISTEN-002",
+    "subject": "english",
+    "area": "english.listening",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["듣기", "숫자"],
+    "stem": { "type": "audio", "payload": "I have three apples." },
+    "choices": [
+      { "id": "a", "label": "2개" },
+      { "id": "b", "label": "3개" },
+      { "id": "c", "label": "4개" },
+      { "id": "d", "label": "5개" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["three = 3"],
+    "difficulty": 2,
+    "variants": ["E-ES56-LISTEN-002-V1"]
+  },
+  {
+    "id": "E-ES56-PLURAL-001",
+    "subject": "english",
+    "area": "english.grammar",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["문법", "복수형"],
+    "stem": { "type": "text", "payload": "book의 복수형은?" },
+    "choices": [
+      { "id": "a", "label": "book" },
+      { "id": "b", "label": "books" },
+      { "id": "c", "label": "bookes" },
+      { "id": "d", "label": "bookies" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["s를 붙임"],
+    "difficulty": 2,
+    "variants": ["E-ES56-PLURAL-001-V1"]
+  },
+  {
+    "id": "E-ES56-PRON-001",
+    "subject": "english",
+    "area": "english.grammar",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["문법", "대명사"],
+    "stem": { "type": "text", "payload": "Tom is my friend. ___ is kind." },
+    "choices": [
+      { "id": "a", "label": "She" },
+      { "id": "b", "label": "He" },
+      { "id": "c", "label": "It" },
+      { "id": "d", "label": "They" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["Tom은 남자 이름"],
+    "difficulty": 2,
+    "variants": ["E-ES56-PRON-001-V1"]
+  },
+  {
+    "id": "E-ES56-VOCAB-003",
+    "subject": "english",
+    "area": "english.vocabulary",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["어휘", "형용사"],
+    "stem": { "type": "text", "payload": "'크다'를 영어로?" },
+    "choices": [
+      { "id": "a", "label": "small" },
+      { "id": "b", "label": "big" },
+      { "id": "c", "label": "short" },
+      { "id": "d", "label": "long" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["반대는 small"],
+    "difficulty": 1,
+    "variants": ["E-ES56-VOCAB-003-V1"]
+  },
+  {
+    "id": "E-ES56-READ-002",
+    "subject": "english",
+    "area": "english.reading",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["읽기", "이해"],
+    "stem": { "type": "text", "payload": "I like cats. Do you like cats?" },
+    "choices": [
+      { "id": "a", "label": "Yes, I do." },
+      { "id": "b", "label": "No, I am not." },
+      { "id": "c", "label": "Yes, I am." },
+      { "id": "d", "label": "No, I don't like dogs." }
+    ],
+    "answer": { "kind": "mcq", "value": "a" },
+    "hints": ["Do you...? 질문의 답변"],
+    "difficulty": 3,
+    "variants": ["E-ES56-READ-002-V1"]
+  },
+  {
+    "id": "E-ES56-LISTEN-003",
+    "subject": "english",
+    "area": "english.listening",
+    "gradeBand": ["ES56"],
+    "conceptTag": ["듣기", "색깔"],
+    "stem": { "type": "audio", "payload": "The sky is blue." },
+    "choices": [
+      { "id": "a", "label": "하늘은 빨강다" },
+      { "id": "b", "label": "하늘은 파랗다" },
+      { "id": "c", "label": "하늘은 노랗다" },
+      { "id": "d", "label": "하늘은 초록색이다" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["blue = 파란색"],
+    "difficulty": 2,
+    "variants": ["E-ES56-LISTEN-003-V1"]
+  }
+]
+

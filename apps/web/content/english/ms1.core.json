@@ -1,0 +1,219 @@
+[
+  {
+    "id": "E-MS1-LISTEN-001",
+    "subject": "english",
+    "area": "english.listening",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["듣기", "사진묘사"],
+    "stem": { "type": "audio", "payload": "The boy is reading a book." },
+    "choices": [
+      { "id": "a", "label": "The boy is reading a book." },
+      { "id": "b", "label": "The boy read a book." },
+      { "id": "c", "label": "The boy will read a book." },
+      { "id": "d", "label": "The boy reads books." }
+    ],
+    "answer": { "kind": "mcq", "value": "a" },
+    "hints": ["is -ing: 현재 진행형"],
+    "difficulty": 3,
+    "variants": ["E-MS1-LISTEN-001-V1"]
+  },
+  {
+    "id": "E-MS1-PAST-001",
+    "subject": "english",
+    "area": "english.grammar",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["과거시제", "불규칙동사"],
+    "stem": { "type": "text", "payload": "I ___ to Seoul yesterday. (go)" },
+    "choices": [
+      { "id": "a", "label": "go" },
+      { "id": "b", "label": "goes" },
+      { "id": "c", "label": "went" },
+      { "id": "d", "label": "gone" }
+    ],
+    "answer": { "kind": "mcq", "value": "c" },
+    "hints": ["go의 과거형"],
+    "difficulty": 3,
+    "variants": ["E-MS1-PAST-001-V1", "E-MS1-PAST-001-V2"]
+  },
+  {
+    "id": "E-MS1-VOCAB-001",
+    "subject": "english",
+    "area": "english.vocabulary",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["어휘", "형용사"],
+    "stem": { "type": "text", "payload": "'흥미로운'의 영어는?" },
+    "choices": [
+      { "id": "a", "label": "boring" },
+      { "id": "b", "label": "interesting" },
+      { "id": "c", "label": "tired" },
+      { "id": "d", "label": "difficult" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["재미있고 끌리는"],
+    "difficulty": 3,
+    "variants": ["E-MS1-VOCAB-001-V1"]
+  },
+  {
+    "id": "E-MS1-READ-001",
+    "subject": "english",
+    "area": "english.reading",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["읽기", "주제찾기"],
+    "stem": { "type": "text", "payload": "Tom likes soccer. He plays soccer every day. What does Tom like?" },
+    "choices": [
+      { "id": "a", "label": "Baseball" },
+      { "id": "b", "label": "Basketball" },
+      { "id": "c", "label": "Soccer" },
+      { "id": "d", "label": "Tennis" }
+    ],
+    "answer": { "kind": "mcq", "value": "c" },
+    "hints": ["첫 문장 확인"],
+    "difficulty": 2,
+    "variants": ["E-MS1-READ-001-V1"]
+  },
+  {
+    "id": "E-MS1-COMPAR-001",
+    "subject": "english",
+    "area": "english.grammar",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["비교급", "형용사"],
+    "stem": { "type": "text", "payload": "Tom is ___ than me. (tall)" },
+    "choices": [
+      { "id": "a", "label": "tall" },
+      { "id": "b", "label": "taller" },
+      { "id": "c", "label": "tallest" },
+      { "id": "d", "label": "more tall" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["비교급: -er"],
+    "difficulty": 3,
+    "variants": ["E-MS1-COMPAR-001-V1"]
+  },
+  {
+    "id": "E-MS1-FUTURE-001",
+    "subject": "english",
+    "area": "english.grammar",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["미래시제", "will"],
+    "stem": { "type": "text", "payload": "I ___ visit my grandma tomorrow." },
+    "choices": [
+      { "id": "a", "label": "am" },
+      { "id": "b", "label": "was" },
+      { "id": "c", "label": "will" },
+      { "id": "d", "label": "have" }
+    ],
+    "answer": { "kind": "mcq", "value": "c" },
+    "hints": ["tomorrow: 미래"],
+    "difficulty": 3,
+    "variants": ["E-MS1-FUTURE-001-V1"]
+  },
+  {
+    "id": "E-MS1-LISTEN-002",
+    "subject": "english",
+    "area": "english.listening",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["듣기", "대화"],
+    "stem": { "type": "audio", "payload": "Where is the library? - It's next to the park." },
+    "choices": [
+      { "id": "a", "label": "공원 옆" },
+      { "id": "b", "label": "학교 앞" },
+      { "id": "c", "label": "병원 뒤" },
+      { "id": "d", "label": "집 근처" }
+    ],
+    "answer": { "kind": "mcq", "value": "a" },
+    "hints": ["next to = 옆에"],
+    "difficulty": 3,
+    "variants": ["E-MS1-LISTEN-002-V1"]
+  },
+  {
+    "id": "E-MS1-PREP-001",
+    "subject": "english",
+    "area": "english.grammar",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["전치사", "위치"],
+    "stem": { "type": "text", "payload": "The book is ___ the table." },
+    "choices": [
+      { "id": "a", "label": "in" },
+      { "id": "b", "label": "on" },
+      { "id": "c", "label": "at" },
+      { "id": "d", "label": "to" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["~위에"],
+    "difficulty": 2,
+    "variants": ["E-MS1-PREP-001-V1"]
+  },
+  {
+    "id": "E-MS1-QUESTION-001",
+    "subject": "english",
+    "area": "english.grammar",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["의문사", "질문"],
+    "stem": { "type": "text", "payload": "___ is your name?" },
+    "choices": [
+      { "id": "a", "label": "Who" },
+      { "id": "b", "label": "What" },
+      { "id": "c", "label": "When" },
+      { "id": "d", "label": "Where" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["이름을 물어볼 때"],
+    "difficulty": 2,
+    "variants": ["E-MS1-QUESTION-001-V1"]
+  },
+  {
+    "id": "E-MS1-VOCAB-002",
+    "subject": "english",
+    "area": "english.vocabulary",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["어휘", "동사"],
+    "stem": { "type": "text", "payload": "'공부하다'의 영어는?" },
+    "choices": [
+      { "id": "a", "label": "teach" },
+      { "id": "b", "label": "learn" },
+      { "id": "c", "label": "study" },
+      { "id": "d", "label": "practice" }
+    ],
+    "answer": { "kind": "mcq", "value": "c" },
+    "hints": ["학습하는 행위"],
+    "difficulty": 2,
+    "variants": ["E-MS1-VOCAB-002-V1"]
+  },
+  {
+    "id": "E-MS1-PASSIVE-001",
+    "subject": "english",
+    "area": "english.grammar",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["수동태", "be+pp"],
+    "stem": { "type": "text", "payload": "The book ___ by many people. (read)" },
+    "choices": [
+      { "id": "a", "label": "reads" },
+      { "id": "b", "label": "is read" },
+      { "id": "c", "label": "reading" },
+      { "id": "d", "label": "read" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["be + 과거분사"],
+    "difficulty": 4,
+    "variants": ["E-MS1-PASSIVE-001-V1"]
+  },
+  {
+    "id": "E-MS1-READ-002",
+    "subject": "english",
+    "area": "english.reading",
+    "gradeBand": ["MS1"],
+    "conceptTag": ["읽기", "추론"],
+    "stem": { "type": "text", "payload": "She is hungry. She goes to a restaurant. What will she do?" },
+    "choices": [
+      { "id": "a", "label": "Sleep" },
+      { "id": "b", "label": "Eat" },
+      { "id": "c", "label": "Study" },
+      { "id": "d", "label": "Run" }
+    ],
+    "answer": { "kind": "mcq", "value": "b" },
+    "hints": ["배고프면?"],
+    "difficulty": 3,
+    "variants": ["E-MS1-READ-002-V1"]
+  }
+]
+

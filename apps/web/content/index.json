@@ -1,0 +1,7 @@
+{
+  "math": ["math/es56.core.json", "math/ms1.core.json"],
+  "english": ["english/es56.core.json", "english/ms1.core.json"],
+  "science": ["science/es56.core.json", "science/ms1.core.json"],
+  "social": ["social/es.core.json", "social/ms1.core.json"]
+}
+
