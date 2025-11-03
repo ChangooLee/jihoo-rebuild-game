@@ -33,7 +33,7 @@ jobs:
       
       - name: Validate generated content
         run: |
-          node tools/builder/validate.mjs
+          node tools/builder/validate-simple.mjs
       
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5

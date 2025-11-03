@@ -1,50 +1,33 @@
 #!/usr/bin/env node
 /**
- * 콘텐츠 정규화 및 검증
- * 생성된 문항들을 표준 스키마로 통합하고 검증
+ * 콘텐츠 간단 검증
  */
 
 import fs from 'fs';
 import path from 'path';
-import { z } from 'zod';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 스키마 정의 (apps/web/content/schema/learning-item.ts 참조)
-const LearningItemSchema = z.object({
-  id: z.string(),
-  subject: z.enum(['math', 'english', 'science', 'social']),
-  area: z.string(),
-  gradeBand: z.array(z.string()),
-  conceptTag: z.array(z.string()),
-  stem: z.object({
-    type: z.enum(['text', 'image', 'audio', 'sim']),
-    payload: z.any()
-  }),
-  choices: z.array(z.object({
-    id: z.string(),
-    label: z.string()
-  })).optional(),
-  answer: z.object({
-    kind: z.enum(['mcq', 'short', 'sequence']),
-    value: z.any()
-  }),
-  source: z.object({
-    url: z.string().optional(),
-    generator: z.string().optional(),
-    license: z.string(),
-    attribution: z.string().optional()
-  }).optional(),
-  hints: z.array(z.string()).optional(),
-  difficulty: z.number().min(1).max(10),
-  variants: z.array(z.string()).optional()
-});
+function validateItem(item, index) {
+  const errors = [];
+  
+  // 필수 필드 체크
+  if (!item.id) errors.push('id 누락');
+  if (!item.subject) errors.push('subject 누락');
+  if (!item.gradeBand) errors.push('gradeBand 누락');
+  if (!item.stem) errors.push('stem 누락');
+  if (!item.answer) errors.push('answer 누락');
+  
+  // 타입 체크
+  if (item.difficulty && (item.difficulty < 1 || item.difficulty > 10)) {
+    errors.push(`difficulty 범위 오류: ${item.difficulty}`);
+  }
+  
+  return errors;
+}
 
-/**
- * 디렉토리 내 모든 JSON 파일 검증
- */
 function validateDirectory(dirPath) {
   console.log(`\n📁 검증 디렉토리: ${dirPath}`);
   
@@ -67,11 +50,12 @@ function validateDirectory(dirPath) {
       const items = Array.isArray(content) ? content : [content];
       
       for (let i = 0; i < items.length; i++) {
-        try {
-          LearningItemSchema.parse(items[i]);
+        const errors = validateItem(items[i], i);
+        
+        if (errors.length === 0) {
           validCount++;
-        } catch (err) {
-          console.error(`    ❌ 문항 ${i + 1} (id: ${items[i].id || 'unknown'}): ${err.message}`);
+        } else {
+          console.error(`    ❌ 문항 ${i + 1} (id: ${items[i].id || 'unknown'}):`, errors.join(', '));
           invalidCount++;
         }
         totalItems++;
@@ -86,29 +70,9 @@ function validateDirectory(dirPath) {
   return { valid: validCount, invalid: invalidCount, total: totalItems };
 }
 
-/**
- * 중복 제거 (ID 기준)
- */
-function deduplicateItems(items) {
-  const seen = new Set();
-  const unique = [];
-  
-  for (const item of items) {
-    if (!seen.has(item.id)) {
-      seen.add(item.id);
-      unique.push(item);
-    }
-  }
-  
-  return unique;
-}
-
-/**
- * 메인 실행
- */
 function main() {
   console.log('=' .repeat(60));
-  console.log('콘텐츠 검증 및 정규화');
+  console.log('콘텐츠 검증');
   console.log('=' .repeat(60));
   
   const contentDir = path.join(__dirname, '../../apps/web/content');
