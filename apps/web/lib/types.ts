@@ -59,6 +59,7 @@ export interface SessionLog {
 }
 
 export interface UserProfile {
+  id?: string;  // Primary key for Dexie
   gradeBand?: GradeBand;
   weakTags?: string[];
   preferredFont?: 'default' | 'lexend' | 'opendyslexic';
