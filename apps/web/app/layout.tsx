@@ -3,7 +3,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Jihoo Quest',
-  description: 'ADHD 친화형 학습·집중력 게임',
+    description: '집중력 향상 학습 게임',
   manifest: '/manifest.json',
   themeColor: '#000000',
   appleWebApp: {

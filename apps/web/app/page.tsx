@@ -63,7 +63,7 @@ export default function HomePage() {
             </h2>
             
             <p className="text-body-md text-muted-foreground mb-8 max-w-2xl mx-auto">
-              ADHD 친화형 학습 게임 · 강제 휴식 · 즉시 보상 · 적응형 난이도
+              집중력 향상 학습 게임 · 강제 휴식 · 즉시 보상 · 적응형 난이도
             </p>
 
             {/* Primary CTA */}
@@ -208,7 +208,7 @@ export default function HomePage() {
             '@context': 'https://schema.org',
             '@type': 'Course',
             name: 'Jihoo Quest',
-            description: 'ADHD 친화형 적응형 학습 게임 - 10~15분 퀘스트로 집중력과 교과 성취',
+            description: '집중력 향상 적응형 학습 게임 - 10~15분 퀘스트로 집중력과 교과 성취',
             provider: {
               '@type': 'Organization',
               name: 'Jihoo Quest',
