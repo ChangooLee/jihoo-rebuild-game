@@ -111,7 +111,7 @@ export default function SettingsPage() {
           <h2 className="text-xl font-bold mb-4">정보</h2>
           <div className="space-y-2 text-sm text-gray-600">
             <p>버전: 0.1.0</p>
-            <p>Jihoo Quest - ADHD 친화형 학습·집중력 게임</p>
+            <p>Jihoo Quest - 집중력 향상 학습 게임</p>
             <p className="text-xs text-gray-500 mt-4">
               본 앱은 의료기기가 아니며, 상담이나 치료를 대체하지 않습니다.
             </p>
