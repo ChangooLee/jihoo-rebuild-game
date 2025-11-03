@@ -141,7 +141,7 @@ def generate_math_item(
     }
 
 
-def build_content_bank(seeds_per_type: int = 50) -> Dict[str, List[Dict]]:
+def build_content_bank(seeds_per_type: int = 50, seed_offset: int = 0) -> Dict[str, List[Dict]]:
     """전체 문항 은행 생성"""
     content = {"ES56": [], "MS1": []}
     
@@ -153,7 +153,7 @@ def build_content_bank(seeds_per_type: int = 50) -> Dict[str, List[Dict]]:
             
             for problem_type, name, tags in problem_types:
                 generated = 0
-                for seed in range(seeds_per_type):
+                for seed in range(seed_offset, seed_offset + seeds_per_type):
                     item = generate_math_item(
                         problem_type, seed, grade_band, area_name, name, tags
                     )
@@ -185,6 +185,7 @@ if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description="수학 문항 자동 생성")
     parser.add_argument("--seeds", type=int, default=50, help="문제 유형당 생성 개수")
+    parser.add_argument("--offset", type=int, default=0, help="시드 오프셋 (증분 생성용)")
     parser.add_argument("--output", type=str, 
                         default="/home/lchangoo/Workspace/jihoo-rebuild-game/apps/web/content/math",
                         help="출력 디렉토리")
@@ -193,10 +194,11 @@ if __name__ == "__main__":
     
     print("=" * 60)
     print("파라메트릭 수학 문항 생성기")
+    print(f"시드 범위: {args.offset} ~ {args.offset + args.seeds}")
     print("=" * 60)
     
     # 문항 생성
-    content_bank = build_content_bank(seeds_per_type=args.seeds)
+    content_bank = build_content_bank(seeds_per_type=args.seeds, seed_offset=args.offset)
     
     # 통계
     total = sum(len(items) for items in content_bank.values())

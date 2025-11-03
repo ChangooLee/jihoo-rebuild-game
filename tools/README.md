@@ -18,14 +18,29 @@ tools/
     └── dedupe.mjs      # 중복 제거
 ```
 
+## 자동화 (GitHub Actions)
+
+### 주간 자동 생성
+**매주 일요일 18:00 KST** - 새 문항 자동 생성 및 PR 생성
+
+```yaml
+# .github/workflows/content-pipeline.yml
+- 매주 50개씩 새 문항 생성
+- 자동 검증 후 PR 생성
+- 리뷰 후 병합
+```
+
+### 수동 실행
+GitHub → Actions → "Content Pipeline (Weekly)" → "Run workflow"
+
 ## 설치
 
 ```bash
 # Python 의존성
+cd tools
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
-
-# Node.js 의존성 (프로젝트 루트에서)
-cd ../../apps/web && npm install
 ```
 
 ## 사용법
@@ -33,23 +48,43 @@ cd ../../apps/web && npm install
 ### 1. 수학 문항 생성 (파라메트릭)
 
 ```bash
-cd tools/generators/math
-python3 build_bank.py --seeds 50
+cd tools
+source venv/bin/activate
+
+# 기본 생성 (0-50 시드)
+python3 generators/math/build_bank.py --seeds 50
+
+# 증분 생성 (100-150 시드)
+python3 generators/math/build_bank.py --seeds 50 --offset 100
 ```
 
-- 초5-6, 중1 수학 문항 생성
+**옵션:**
 - `--seeds N`: 문제 유형당 N개 생성
-- 출력: `apps/web/content/math/*.generated.json`
+- `--offset N`: 시드 오프셋 (매주 자동 증가)
+- `--output PATH`: 출력 디렉토리
+
+**출력:** `apps/web/content/math/*.generated.json`
 
 ### 2. 검증
 
 ```bash
-cd tools/builder
-node validate.mjs
+node builder/validate.mjs
 ```
 
 - 모든 JSON 파일의 스키마 검증
 - 필수 필드, 타입, 범위 확인
+
+## 콘텐츠 증가 전략
+
+### 현재 (수학만)
+- 초기: 2,300개
+- 주간 증가: +1,150개/주
+- **10주 후: 13,800개** 수학 문항
+
+### 향후 (영어/과학/사회 추가 시)
+- 영어: Tatoeba CC0 기반
+- 과학: OpenStax/Wikidata
+- 사회: Wikidata SPARQL + KOGL
 
 ## 라이선스 및 출처
 

@@ -1,13 +1,9 @@
 name: Content Pipeline (Weekly)
 
-# 주석 처리 - 필요시 활성화
-# on:
-#   schedule:
-#     - cron: '0 18 * * 0'  # 매주 일요일 18:00 KST
-#   workflow_dispatch:  # 수동 실행 가능
-
 on:
-  workflow_dispatch:  # 수동 실행만 가능
+  schedule:
+    - cron: '0 9 * * 0'  # 매주 일요일 18:00 KST (UTC+9)
+  workflow_dispatch:  # 수동 실행도 가능
 
 jobs:
   generate-content:
@@ -28,10 +24,12 @@ jobs:
           cd tools
           pip install -r requirements.txt
       
-      - name: Generate math content
+      - name: Generate math content (incremental)
         run: |
           cd tools
-          python3 generators/math/build_bank.py --seeds 100
+          # 매주 시드 변경으로 새 문항 생성
+          SEED_OFFSET=$(($(date +%W) * 50))
+          python3 generators/math/build_bank.py --seeds 50 --offset $SEED_OFFSET
       
       - name: Validate generated content
         run: |
