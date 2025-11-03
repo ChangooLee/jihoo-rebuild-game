@@ -21,23 +21,42 @@ function deploy() {
     console.log(stdout);
     if (stderr) console.error(stderr);
     
-    // 프로젝트 루트에서 의존성 설치 및 빌드
-    exec('cd ' + __dirname + ' && pnpm install && cd apps/web && pnpm build', (error, stdout, stderr) => {
+    // 의존성 설치 및 빌드 (npm 사용)
+    const buildCmd = `cd ${__dirname}/apps/web && npm install && npm run build`;
+    console.log(`[${new Date().toISOString()}] 빌드 명령: ${buildCmd}`);
+    
+    exec(buildCmd, { maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
       if (error) {
         console.error(`[${new Date().toISOString()}] 빌드 실패:`, error);
+        console.error(stderr);
         return;
       }
       console.log(`[${new Date().toISOString()}] 빌드 완료`);
       console.log(stdout);
       if (stderr) console.error(stderr);
       
-      // PM2로 재시작 (PM2 사용 시)
-      exec('pm2 restart jihoo-quest || echo "PM2 재시작 실패 (PM2가 설정되지 않았을 수 있음)"', (err) => {
-        if (err) {
-          console.log('PM2 재시작 시도 중 오류 (무시 가능)');
+      // standalone 빌드 후 static/public 파일 복사
+      const copyCmd = `cd ${__dirname}/apps/web && ` +
+        `cp -r public .next/standalone/apps/web/ && ` +
+        `cp -r .next/static .next/standalone/apps/web/.next/`;
+      
+      exec(copyCmd, (copyError, copyStdout, copyStderr) => {
+        if (copyError) {
+          console.error(`[${new Date().toISOString()}] 파일 복사 실패:`, copyError);
         } else {
-          console.log(`[${new Date().toISOString()}] PM2 재시작 완료`);
+          console.log(`[${new Date().toISOString()}] static 파일 복사 완료`);
         }
+        
+        // PM2로 재시작
+        exec('pm2 restart jihoo-quest', (err, pmStdout, pmStderr) => {
+          if (err) {
+            console.error(`[${new Date().toISOString()}] PM2 재시작 실패:`, err);
+            console.error(pmStderr);
+          } else {
+            console.log(`[${new Date().toISOString()}] PM2 재시작 완료`);
+            console.log(pmStdout);
+          }
+        });
       });
     });
   });
