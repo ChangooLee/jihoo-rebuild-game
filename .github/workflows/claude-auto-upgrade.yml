@@ -74,6 +74,21 @@ jobs:
 
       - name: Quality gate (skills/verify.sh)
         run: |
+          # 의존성 재확인 및 설치
+          cd apps/web
+          if [ -f ../pnpm-lock.yaml ] || [ -f pnpm-lock.yaml ]; then
+            npm i -g pnpm && pnpm i || true
+          elif [ -f ../yarn.lock ] || [ -f yarn.lock ]; then
+            npm i -g yarn && yarn install || true
+          elif [ -f ../bun.lockb ] || [ -f bun.lockb ]; then
+            curl -fsSL https://bun.sh/install | bash -s -- -y || true
+            export PATH="$HOME/.bun/bin:$PATH"
+            bun install || true
+          else
+            npm ci || npm i || true
+          fi
+          cd ../..
+          # 검증 실행
           bash skills/setup.sh
           bash skills/verify.sh
 
