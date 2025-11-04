@@ -237,7 +237,7 @@
 
 ---
 
-## 16) Auto Tasks 실행 규칙
+## 17) Auto Tasks 실행 규칙
 
 - 소스: `docs/AUTO_TASKS.yml` (version=1)
 - 순서:

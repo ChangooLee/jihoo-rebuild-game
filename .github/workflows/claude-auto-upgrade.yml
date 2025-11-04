@@ -1,4 +1,4 @@
-name: Claude Auto-Upgrade
+name: claude-auto-upgrade
 
 on:
   workflow_dispatch:
@@ -20,34 +20,16 @@ permissions:
   issues: write
   id-token: write
 
-env:
-  TZ: Asia/Seoul
-
 jobs:
-  self_upgrade:
+  auto-upgrade:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      issues: write
-      id-token: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Install helpers (jq, curl)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq curl
-
-      - name: Best-effort install project deps
+      # 의존성 설치는 apps/web 하위에서만; 루트 package-lock 생성 방지
+      - name: Best-effort install project deps (apps/web only)
         run: |
           set -e
           cd apps/web || true
@@ -60,23 +42,10 @@ jobs:
             export PATH="$HOME/.bun/bin:$PATH"
             bun install || true
           else
-            # npm 사용 시 루트/하위에 lock 생성 방지
             npm i --no-package-lock || true
           fi
 
-      - name: Prepare Claude settings
-        id: settings
-        run: |
-          mkdir -p ~/.claude
-          cat > ~/.claude/settings.json <<'JSON'
-          {
-            "BASH_MAX_TIMEOUT_MS": 180000,
-            "MCP_TOOL_TIMEOUT_MS": 120000
-          }
-          JSON
-
-      # ⬇️ Claude Code 액션: 에이전트가 코드 수정/리서치/검증/브랜치 생성까지 수행
-      - name: Run Claude Code (agentic)
+      - name: Claude Code — auto task (feature-only)
         uses: anthropics/claude-code-action@v1
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -85,28 +54,19 @@ jobs:
           prompt: |
             Follow CLAUDE.md and parse docs/AUTO_TASKS.yml (version 1).
 
-            # Context
-            - Repository: $GITHUB_REPOSITORY
-            - If input.task exists, treat it as the top priority goal:
-              "${{ github.event.inputs.task }}"
-            - This is a learning game platform for Korean ES/MS students (집중력과 학습 향상)
+            - Choose exactly ONE task with lowest risk (policy.one_task_per_run=true).
 
-            # Required flow (strictly follow CLAUDE.md §16)
-            1) /catchup → recent diffs only
-            2) Parse docs/AUTO_TASKS.yml → Choose exactly ONE task with lowest risk
-            3) Edits restricted to allowed_paths; forbidden_paths must not be touched
-            4) Run skills/research.sh for keywords in selected task → docs/research/YYYY-MM-DD-<taskid>.md
-            5) Perform minimal, safe code edits per task.edits; not perf/a11y tuning
-            6) BEFORE any commit/PR → run skills/verify.sh and proceed only if success
-            7) Run all acceptance checks from task.acceptance
-            8) Update docs/UPGRADE_LOG.md (≤5 lines), then create PR with the template
-            9) If no safe change is possible, exit without PR and write docs/logs/blocked-YYYY-MM-DD-<taskid>.md
+            - Edits restricted to policy.allowed_paths; policy.forbidden_paths must not be touched.
 
-            # Constraints
-            - Never expose secrets; don't touch env/.env.sample contents with real values
-            - Avoid massive rewrites; avoid framework swaps in a single PR
-            - Changes must align with README.md vision (짧고 즉각적인 보상, 집중력 친화, 학습 최적화)
-            - Only edit files listed in task.edits within allowed_paths
+            - Align strictly to README.md / DEVELOP.md feature goals (no perf/a11y tuning).
+
+            - Before any commit/PR, run: bash skills/verify.sh ; proceed only if success.
+
+            - Log research to docs/research/YYYY-MM-DD-<taskid>.md
+
+            - Update docs/UPGRADE_LOG.md (≤5 lines), then create PR with the template.
+
+            - If no safe change is possible, exit without PR and write docs/logs/blocked-YYYY-MM-DD-<taskid>.md
           claude_args: |
             --model sonnet
             --max-turns 16
@@ -116,7 +76,9 @@ jobs:
 
       - name: Show candidate changes (allowed paths only)
         run: |
-          git --no-pager diff --name-status -- apps/ docs/ skills/ tools/ .github/ || true
+          echo "---- changed files (allowed paths) ----"
+          git --no-pager diff --name-status -- apps/ docs/ skills/ tools/ .github/ "**/*.md" || true
+          echo "---------------------------------------"
 
       # 액션이 변경을 워킹트리에 남긴 경우(혹은 브랜치만 만들고 PR 미생성 시) PR을 안전하게 보장
       - name: Detect changes
@@ -125,7 +87,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # 허용 경로 안에서만 변경 감지
-          if git diff --quiet HEAD -- apps/ docs/ skills/ tools/ .github/; then
+          if git diff --quiet HEAD -- apps/ docs/ skills/ tools/ .github/ "**/*.md"; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -136,11 +98,11 @@ jobs:
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: chore/claude-auto-upgrade-${{ github.run_id }}
+          branch: chore/claude-auto-task-${{ github.run_id }}
           title: "feat(claude): auto task – $(date +'%Y-%m-%d %H:%M %Z')"
           commit-message: "feat(claude): auto task"
           body: |
-            Auto Task PR (fallback). See research/logs and CLAUDE.md §16.
+            Auto Task PR (fallback). See research/logs and CLAUDE.md §17.
           labels: auto, claude, feature
           delete-branch: false
           # ✅ 허용 경로만 PR에 포함
@@ -151,8 +113,4 @@ jobs:
             tools/**
             .github/**
             **/*.md
-
-      - name: Smoke Test (post-change)
-        run: |
-          bash scripts/smoke.sh || true
 
