@@ -4,11 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       task:
-        description: "선택: 이번 실행의 목표/메모(예: 초기 로딩 30% 단축)"
+        description: "선택: 이번 실행의 목표/메모(예: FSRS 엔진 개선, 타입 안정성 강화)"
         required: false
   schedule:
-    # 매주 월요일 KST 아침 09:10 (UTC 00:10)
-    - cron: "10 0 * * 1"
+    # 매일 09:00 KST (UTC 00:00)
+    - cron: "0 0 * * *"
+
+concurrency:
+  group: auto-upgrade-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -57,6 +61,16 @@ jobs:
             npm ci || npm i || true
           fi
 
+      - name: Prepare Claude settings
+        id: settings
+        run: |
+          cat > settings.json <<'JSON'
+          {
+            "BASH_MAX_TIMEOUT_MS": 180000,
+            "MCP_TOOL_TIMEOUT_MS": 120000
+          }
+          JSON
+
       # ⬇️ Claude Code 액션: 에이전트가 코드 수정/리서치/검증/브랜치 생성까지 수행
       - name: Run Claude Code (agentic)
         uses: anthropics/claude-code-action@v1
@@ -65,29 +79,39 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
+            Follow CLAUDE.md as the constitution. Scope strictly to README.md and DEVELOP.md goals
+            (features/architecture/roadmap). This is a daily self-upgrade run:
+
             # Context
             - Repository: $GITHUB_REPOSITORY
             - If input.task exists, treat it as the top priority goal:
               "${{ github.event.inputs.task }}"
-            - Follow CLAUDE.md strictly (self-upgrade rules, risk limits, PR template).
-            - Use Read/Edit/Glob/Grep tools to analyze and modify code. For shell commands, use existing skills/*.sh scripts.
-            - Keep changes small & safe; document reasons and links.
+            - This is a learning game platform for Korean ES/MS students (집중력과 학습 향상)
+            - Focus on: features, architecture improvements, DX/type-safety, NOT performance/a11y optimization
 
-            # Required flow
-            1) Scan repo & plan small upgrades (deps/security/build/perf/a11y/DX).
-            2) Run web research (public docs/releases/best-practices); record to docs/research/*.
-            3) Apply safe changes.
-            4) Validate via scripts/smoke.sh and/or skills/verify.sh (if present).
-            5) Create a new branch and prepare a PR using the template in CLAUDE.md.
+            # Required flow (strictly follow CLAUDE.md)
+            1) /catchup → recent diffs only
+            2) Plan small, safe change aligned to product goals in README.md/DEVELOP.md
+               - Features: FSRS engine, adaptive difficulty, session flow, content loading
+               - Architecture: type safety, data models, module organization
+               - DX: test coverage, lint/format consistency, documentation
+               - DO NOT focus on: performance tuning, a11y improvements (unless explicitly in roadmap)
+            3) Run skills/research.sh for necessary web research (log to docs/research/*)
+            4) Implement minimal change; keep DX/type-safety intact
+            5) BEFORE any git commit/PR → run skills/verify.sh and proceed only if success
+            6) Generate a PR with the provided PR template and link research/logs
+            7) Update docs/UPGRADE_LOG.md with ≤5 lines summary
 
             # Constraints
-            - Never expose secrets; don't touch env/.env.sample contents with real values.
-            - Avoid massive rewrites; avoid framework swaps in a single PR.
-          claude_args: >
+            - Never expose secrets; don't touch env/.env.sample contents with real values
+            - Avoid massive rewrites; avoid framework swaps in a single PR
+            - Changes must align with README.md vision (짧고 즉각적인 보상, 집중력 친화, 학습 최적화)
+          claude_args: |
             --model sonnet
-            --max-turns 20
-            --append-system-prompt "You are an autonomous code agent for a JavaScript/TypeScript web game repository. Prefer minimal, reversible changes and clear PR docs. Use Read, Edit, Glob, Grep tools to analyze code and make changes. For shell commands, use skills/ scripts instead of Bash tool."
-            --allowedTools "Read" "Edit" "Glob" "Grep" "View"
+            --max-turns 14
+            --allowedTools Read,Write,Edit,Grep,Glob,Bash(git *),Bash(pnpm *),Bash(npm *),Bash(yarn *),Bash(node *),Bash(curl *),Bash(jq *)
+            --disallowedTools Bash(rm *),Bash(sudo *),Bash(docker *),Bash(apt *),Bash(pip *),Bash(brew *)
+            --settings ./settings.json
             --verbose
 
       # 액션이 변경을 워킹트리에 남긴 경우(혹은 브랜치만 만들고 PR 미생성 시) PR을 안전하게 보장
