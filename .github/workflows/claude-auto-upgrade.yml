@@ -22,6 +22,11 @@ env:
 jobs:
   self_upgrade:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -101,6 +106,7 @@ jobs:
         if: steps.diff.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           branch: chore/claude-auto-upgrade-${{ github.run_id }}
           title: "chore(claude): auto upgrade ($(date +'%Y-%m-%d %H:%M %Z'))"
           commit-message: "chore(claude): auto upgrade"
@@ -110,6 +116,7 @@ jobs:
             - 입력 task: "${{ github.event.inputs.task }}"
             - 참고: docs/research/*, docs/logs/* (존재 시 링크)
           labels: auto, claude, chore
+          delete-branch: false
 
       - name: Smoke Test (post-change)
         run: |
