@@ -83,39 +83,40 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
-            Follow CLAUDE.md as the constitution. Scope strictly to README.md and DEVELOP.md goals
-            (features/architecture/roadmap). This is a daily self-upgrade run:
+            Follow CLAUDE.md and parse docs/AUTO_TASKS.yml (version 1).
 
             # Context
             - Repository: $GITHUB_REPOSITORY
             - If input.task exists, treat it as the top priority goal:
               "${{ github.event.inputs.task }}"
             - This is a learning game platform for Korean ES/MS students (집중력과 학습 향상)
-            - Focus on: features, architecture improvements, DX/type-safety, NOT performance/a11y optimization
 
-            # Required flow (strictly follow CLAUDE.md)
+            # Required flow (strictly follow CLAUDE.md §16)
             1) /catchup → recent diffs only
-            2) Plan small, safe change aligned to product goals in README.md/DEVELOP.md
-               - Features: FSRS engine, adaptive difficulty, session flow, content loading
-               - Architecture: type safety, data models, module organization
-               - DX: test coverage, lint/format consistency, documentation
-               - DO NOT focus on: performance tuning, a11y improvements (unless explicitly in roadmap)
-            3) Run skills/research.sh for necessary web research (log to docs/research/*)
-            4) Implement minimal change; keep DX/type-safety intact
-            5) BEFORE any git commit/PR → run skills/verify.sh and proceed only if success
-            6) Generate a PR with the provided PR template and link research/logs
-            7) Update docs/UPGRADE_LOG.md with ≤5 lines summary
+            2) Parse docs/AUTO_TASKS.yml → Choose exactly ONE task with lowest risk
+            3) Edits restricted to allowed_paths; forbidden_paths must not be touched
+            4) Run skills/research.sh for keywords in selected task → docs/research/YYYY-MM-DD-<taskid>.md
+            5) Perform minimal, safe code edits per task.edits; not perf/a11y tuning
+            6) BEFORE any commit/PR → run skills/verify.sh and proceed only if success
+            7) Run all acceptance checks from task.acceptance
+            8) Update docs/UPGRADE_LOG.md (≤5 lines), then create PR with the template
+            9) If no safe change is possible, exit without PR and write docs/logs/blocked-YYYY-MM-DD-<taskid>.md
 
             # Constraints
             - Never expose secrets; don't touch env/.env.sample contents with real values
             - Avoid massive rewrites; avoid framework swaps in a single PR
             - Changes must align with README.md vision (짧고 즉각적인 보상, 집중력 친화, 학습 최적화)
+            - Only edit files listed in task.edits within allowed_paths
           claude_args: |
             --model sonnet
-            --max-turns 14
-            --allowedTools Read,Write,Edit,Grep,Glob,Bash(git *),Bash(pnpm *),Bash(npm *),Bash(yarn *),Bash(node *),Bash(curl *),Bash(jq *)
+            --max-turns 16
+            --allowedTools Read,Write,Edit,Grep,Glob,Bash(git *),Bash(npm *),Bash(pnpm *),Bash(yarn *),Bash(node *),View
             --disallowedTools Bash(rm *),Bash(sudo *),Bash(docker *),Bash(apt *),Bash(pip *),Bash(brew *)
             --verbose
+
+      - name: Show candidate changes (allowed paths only)
+        run: |
+          git --no-pager diff --name-status -- apps/ docs/ skills/ tools/ .github/ || true
 
       # 액션이 변경을 워킹트리에 남긴 경우(혹은 브랜치만 만들고 PR 미생성 시) PR을 안전하게 보장
       - name: Detect changes
@@ -124,7 +125,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # 허용 경로 안에서만 변경 감지
-          if git diff --quiet HEAD -- apps docs skills tools .github "*.md" 2>/dev/null; then
+          if git diff --quiet HEAD -- apps/ docs/ skills/ tools/ .github/; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -136,13 +137,11 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: chore/claude-auto-upgrade-${{ github.run_id }}
-          title: "chore(claude): auto upgrade ($(date +'%Y-%m-%d %H:%M %Z'))"
-          commit-message: "chore(claude): auto upgrade"
+          title: "feat(claude): auto task – $(date +'%Y-%m-%d %H:%M %Z')"
+          commit-message: "feat(claude): auto task"
           body: |
-            자동 업그레이드 PR (fallback).
-            - 실행: ${{ github.workflow }} #${{ github.run_number }}
-            - 참고: docs/research/*, docs/logs/* (존재 시 링크)
-          labels: auto, claude, chore
+            Auto Task PR (fallback). See research/logs and CLAUDE.md §16.
+          labels: auto, claude, feature
           delete-branch: false
           # ✅ 허용 경로만 PR에 포함
           add-paths: |

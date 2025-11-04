@@ -1,0 +1,71 @@
+# docs/AUTO_TASKS.yml
+# 머신 리더블 백로그: README/DEVELOP 목표를 작고 검증 가능한 태스크로 분해
+
+version: 1
+
+policy:
+  allowed_paths:
+    - apps/**
+    - docs/**
+    - skills/**
+    - tools/**
+    - .github/**
+  forbidden_paths:
+    - package-lock.json
+    - output.txt
+  must_run_verify: true   # commit/PR 전 skills/verify.sh 통과 필수
+  one_task_per_run: true  # 매일 1개 태스크만
+
+tasks:
+  - id: FSRS-001
+    title: "FSRS Card 타입 안전화"
+    rationale: "DEVELOP.md의 학습 엔진 안정성 강화. any 제거."
+    edits:
+      - file: apps/web/lib/types.ts
+        note: "ReviewState.fsrs: any → Card (fsrs.js)"
+      - file: apps/web/modules/fsrs/engine.ts
+        note: "as any 제거, Card 사용"
+    acceptance:
+      - "bash -lc \"! grep -R 'as any' apps/web/modules/fsrs/engine.ts\""
+      - "bash -lc \"node -v && bash skills/verify.sh\""
+    research:
+      keywords:
+        - "fsrs.js Card type"
+        - "TypeScript strict typing Card schedule"
+    risk: "낮음"
+    labels: ["feature", "fsrs", "types"]
+
+  - id: DIAG-101
+    title: "진단(12문항) MVP 스켈레톤"
+    rationale: "README.md의 진단 목표 반영, ES/MS 혼합 12문항 뼈대"
+    edits:
+      - file: apps/web/app/diagnostic/page.tsx
+        note: "진행바/타이머/종료시 결과 저장 훅 연결"
+      - file: apps/web/modules/diagnostic/engine.ts
+        note: "간단 채점 규칙 + gradeBand/weakTags 산출"
+    acceptance:
+      - "bash -lc \"bash skills/verify.sh\""
+      - "bash -lc \"grep -R 'weakTags' apps/web/app/diagnostic/page.tsx\""
+    research:
+      keywords:
+        - "diagnostic test UX 12 items"
+    risk: "중간"
+    labels: ["feature", "diagnostic"]
+
+  - id: CNT-201
+    title: "수학 최소 콘텐츠 제너레이터(샘플 10문항)"
+    rationale: "콘텐츠 자동생성 파이프라인 시작"
+    edits:
+      - file: tools/generators/math/build_bank.ts
+        note: "샘플 10문항 생성 → Zod 스키마 통과"
+      - file: apps/web/modules/content/loader.ts
+        note: "bank.json 로딩 경로 연결(조건부)"
+    acceptance:
+      - "bash -lc \"node tools/generators/math/build_bank.ts && bash skills/verify.sh\""
+      - "bash -lc \"test -f apps/web/content/math/bank.json\""
+    research:
+      keywords:
+        - "zod schema content validation"
+    risk: "낮음"
+    labels: ["feature", "content"]
+
