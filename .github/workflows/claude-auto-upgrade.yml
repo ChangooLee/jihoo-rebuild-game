@@ -65,7 +65,7 @@ jobs:
             - If input.task exists, treat it as the top priority goal:
               "${{ github.event.inputs.task }}"
             - Follow CLAUDE.md strictly (self-upgrade rules, risk limits, PR template).
-            - Use Bash(curl,jq,git,npm/pnpm/yarn) for web research & automation (allowed tools).
+            - Use Read/Edit/Glob/Grep tools to analyze and modify code. For shell commands, use existing skills/*.sh scripts.
             - Keep changes small & safe; document reasons and links.
 
             # Required flow
@@ -80,9 +80,9 @@ jobs:
             - Avoid massive rewrites; avoid framework swaps in a single PR.
           claude_args: >
             --model sonnet
-            --max-turns 12
-            --append-system-prompt "You are an autonomous code agent for a JavaScript/TypeScript web game repository. Prefer minimal, reversible changes and clear PR docs."
-            --allowedTools "Read" "Edit" "Glob" "Grep" "Bash(git:*,npm:*,pnpm:*,yarn:*,curl:*,jq:*,node:*)" "View"
+            --max-turns 20
+            --append-system-prompt "You are an autonomous code agent for a JavaScript/TypeScript web game repository. Prefer minimal, reversible changes and clear PR docs. Use Read, Edit, Glob, Grep tools to analyze code and make changes. For shell commands, use skills/ scripts instead of Bash tool."
+            --allowedTools "Read" "Edit" "Glob" "Grep" "View"
             --verbose
 
       # 액션이 변경을 워킹트리에 남긴 경우(혹은 브랜치만 만들고 PR 미생성 시) PR을 안전하게 보장
