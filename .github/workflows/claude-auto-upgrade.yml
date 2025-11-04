@@ -55,6 +55,8 @@ jobs:
       # ⬇️ Claude Code 액션: 에이전트가 코드 수정/리서치/검증/브랜치 생성까지 수행
       - name: Run Claude Code (agentic)
         uses: anthropics/claude-code-action@v1
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
