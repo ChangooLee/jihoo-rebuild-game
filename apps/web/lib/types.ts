@@ -37,9 +37,11 @@ export interface LearningItem {
 
 export type FSRSOutcome = 'again' | 'hard' | 'good' | 'easy';
 
+import type { Card } from 'fsrs.js';
+
 export interface ReviewState {
   itemId: string;
-  fsrs: any;                 // FSRS 스케줄 상태
+  fsrs: Card;                 // FSRS 스케줄 상태
   lastOutcome: FSRSOutcome;
   lastLatencyMs?: number;
 }

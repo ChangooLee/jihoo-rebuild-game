@@ -4,6 +4,9 @@ import { db } from '@/lib/db';
 
 const fsrs = new FSRS();
 
+// fsrs.repeat 반환의 최소 필요한 형태를 명시해 Lint/TS 경고 제거
+type SchedulingResult = Record<Rating, { card: Card; log?: unknown }>;
+
 /**
  * FSRS 결과를 ReviewState의 FSRSOutcome으로 변환합니다.
  */
@@ -31,17 +34,17 @@ export async function recordReview(
   const existing = await db.reviewStates.get(itemId);
   
   const card = existing?.fsrs 
-    ? existing.fsrs as any
+    ? existing.fsrs
     : new Card();
 
   const now = new Date();
   const rating = outcomeToRating(outcome);
-  const schedulingCards = fsrs.repeat(card, now);
+  const schedulingCards = fsrs.repeat(card, now) as SchedulingResult;
   const selectedCard = schedulingCards[rating];
 
   const reviewState: ReviewState = {
     itemId,
-    fsrs: selectedCard as any,
+    fsrs: selectedCard.card,
     lastOutcome: outcome,
     lastLatencyMs: latencyMs,
   };
@@ -61,7 +64,7 @@ export async function getDueItems(limit: number = 20): Promise<string[]> {
   
   for (const state of allStates) {
     if (state.fsrs) {
-      const card = state.fsrs as any;
+      const card = state.fsrs;
       const dueDate = card.due ? new Date(card.due) : null;
       if (dueDate && dueDate <= now) {
         dueItems.push(state.itemId);
