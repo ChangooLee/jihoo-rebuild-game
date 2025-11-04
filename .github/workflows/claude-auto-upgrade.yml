@@ -64,7 +64,8 @@ jobs:
       - name: Prepare Claude settings
         id: settings
         run: |
-          cat > settings.json <<'JSON'
+          mkdir -p ~/.claude
+          cat > ~/.claude/settings.json <<'JSON'
           {
             "BASH_MAX_TIMEOUT_MS": 180000,
             "MCP_TOOL_TIMEOUT_MS": 120000
@@ -111,7 +112,6 @@ jobs:
             --max-turns 14
             --allowedTools Read,Write,Edit,Grep,Glob,Bash(git *),Bash(pnpm *),Bash(npm *),Bash(yarn *),Bash(node *),Bash(curl *),Bash(jq *)
             --disallowedTools Bash(rm *),Bash(sudo *),Bash(docker *),Bash(apt *),Bash(pip *),Bash(brew *)
-            --settings ./settings.json
             --verbose
 
       # 액션이 변경을 워킹트리에 남긴 경우(혹은 브랜치만 만들고 PR 미생성 시) PR을 안전하게 보장
