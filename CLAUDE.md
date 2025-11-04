@@ -245,8 +245,8 @@
   2) `AUTO_TASKS.yml` 파싱 → `one_task_per_run: true`면 **가장 리스크 낮은 태스크 1건** 선택
   3) `skills/research.sh`로 근거 링크 정리 → `docs/research/YYYY-MM-DD-<taskid>.md`
   4) 편집(allowed_paths 내에서만), forbidden_paths는 절대 편집 금지
-  5) **commit/PR 전 `skills/verify.sh` 필수 통과**
-  6) `/pr` 생성(템플릿 준수), `docs/UPGRADE_LOG.md` 5줄 요약 추가
+  5) **검증(`skills/verify.sh`)은 CI가 수행**. 편집만 하고, 쉘은 호출하지 말 것.
+  6) CI가 검증 통과 후 PR 생성, `docs/UPGRADE_LOG.md` 5줄 요약 추가
 - 실패 시:
   - 코드 변경/PR 금지
   - `docs/logs/blocked-YYYY-MM-DD-<taskid>.md`에 원인 기록(권한/도구/설계/데이터)

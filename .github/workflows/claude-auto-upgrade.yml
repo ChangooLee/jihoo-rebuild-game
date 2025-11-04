@@ -56,23 +56,26 @@ jobs:
 
             - Choose exactly ONE task with lowest risk (policy.one_task_per_run=true).
 
-            - Edits restricted to policy.allowed_paths; policy.forbidden_paths must not be touched.
+            - Edits restricted to policy.allowed_paths; NEVER touch policy.forbidden_paths.
 
             - Align strictly to README.md / DEVELOP.md feature goals (no perf/a11y tuning).
 
-            - Before any commit/PR, run: bash skills/verify.sh ; proceed only if success.
+            - DO NOT run shell. CI will run skills/verify.sh after your edits.
 
             - Log research to docs/research/YYYY-MM-DD-<taskid>.md
 
-            - Update docs/UPGRADE_LOG.md (≤5 lines), then create PR with the template.
-
-            - If no safe change is possible, exit without PR and write docs/logs/blocked-YYYY-MM-DD-<taskid>.md
+            - Update docs/UPGRADE_LOG.md (≤5 lines). Do not create PR yourself.
           claude_args: |
             --model sonnet
             --max-turns 16
-            --allowedTools Read,Write,Edit,Grep,Glob,Bash(git *),Bash(npm *),Bash(pnpm *),Bash(yarn *),Bash(node *),View
-            --disallowedTools Bash(rm *),Bash(sudo *),Bash(docker *),Bash(apt *),Bash(pip *),Bash(brew *)
+            --allowedTools Read,Edit,Write,Grep,Glob,View
+            --disallowedTools Bash(*)
             --verbose
+
+      - name: Quality gate (skills/verify.sh)
+        run: |
+          bash skills/setup.sh
+          bash skills/verify.sh
 
       - name: Show candidate changes (allowed paths only)
         run: |
@@ -93,8 +96,8 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Create PR (fallback if needed)
-        if: steps.diff.outputs.changed == 'true'
+      - name: Create PR (allowed paths only, after verify)
+        if: steps.diff.outputs.changed == 'true' && success()
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
