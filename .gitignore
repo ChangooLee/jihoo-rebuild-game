@@ -67,3 +67,9 @@ tools/venv/
 
 # Runner detection
 .runner
+
+# Claude Code output files
+output.txt
+
+# Root package lock (should only exist in apps/web)
+/package-lock.json

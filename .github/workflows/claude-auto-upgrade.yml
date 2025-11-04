@@ -49,16 +49,19 @@ jobs:
 
       - name: Best-effort install project deps
         run: |
-          if [ -f pnpm-lock.yaml ]; then
+          set -e
+          cd apps/web || true
+          if [ -f ../pnpm-lock.yaml ] || [ -f pnpm-lock.yaml ]; then
             npm i -g pnpm && pnpm i || true
-          elif [ -f yarn.lock ]; then
+          elif [ -f ../yarn.lock ] || [ -f yarn.lock ]; then
             npm i -g yarn && yarn install || true
-          elif [ -f bun.lockb ]; then
+          elif [ -f ../bun.lockb ] || [ -f bun.lockb ]; then
             curl -fsSL https://bun.sh/install | bash -s -- -y || true
             export PATH="$HOME/.bun/bin:$PATH"
             bun install || true
           else
-            npm ci || npm i || true
+            # npm 사용 시 루트/하위에 lock 생성 방지
+            npm i --no-package-lock || true
           fi
 
       - name: Prepare Claude settings
@@ -120,10 +123,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          else
+          # 허용 경로 안에서만 변경 감지
+          if git diff --quiet HEAD -- apps docs skills tools .github "*.md" 2>/dev/null; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create PR (fallback if needed)
@@ -135,12 +139,19 @@ jobs:
           title: "chore(claude): auto upgrade ($(date +'%Y-%m-%d %H:%M %Z'))"
           commit-message: "chore(claude): auto upgrade"
           body: |
-            자동 업그레이드 PR (백업 경로).
+            자동 업그레이드 PR (fallback).
             - 실행: ${{ github.workflow }} #${{ github.run_number }}
-            - 입력 task: "${{ github.event.inputs.task }}"
             - 참고: docs/research/*, docs/logs/* (존재 시 링크)
           labels: auto, claude, chore
           delete-branch: false
+          # ✅ 허용 경로만 PR에 포함
+          add-paths: |
+            apps/**
+            docs/**
+            skills/**
+            tools/**
+            .github/**
+            **/*.md
 
       - name: Smoke Test (post-change)
         run: |
