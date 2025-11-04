@@ -78,17 +78,21 @@ jobs:
           cd apps/web
           if [ -f ../pnpm-lock.yaml ] || [ -f pnpm-lock.yaml ]; then
             npm i -g pnpm && pnpm i || true
+            export PATH="$PWD/node_modules/.bin:$PATH"
           elif [ -f ../yarn.lock ] || [ -f yarn.lock ]; then
             npm i -g yarn && yarn install || true
+            export PATH="$PWD/node_modules/.bin:$PATH"
           elif [ -f ../bun.lockb ] || [ -f bun.lockb ]; then
             curl -fsSL https://bun.sh/install | bash -s -- -y || true
             export PATH="$HOME/.bun/bin:$PATH"
             bun install || true
+            export PATH="$PWD/node_modules/.bin:$PATH"
           else
             npm ci || npm i || true
+            export PATH="$PWD/node_modules/.bin:$PATH"
           fi
           cd ../..
-          # 검증 실행 (루트에서)
+          # 검증 실행 (루트에서, apps/web/node_modules/.bin이 PATH에 있음)
           bash skills/setup.sh
           bash skills/verify.sh
 
