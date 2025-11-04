@@ -1,55 +1,42 @@
-#!/bin/bash
-# skills/research.sh
-# 웹 리서치 자동화 (간단한 구조)
+#!/usr/bin/env bash
+# 사용법: bash skills/research.sh "react game loop optimize"
 
-set -e
+set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-cd "$PROJECT_ROOT"
+q="${1:-}"
 
-# 질의어 확인
-if [ -z "$1" ]; then
-    echo "❌ 사용법: $0 <검색어>"
-    exit 1
+if [ -z "$q" ]; then
+  echo "query is required"; exit 1
 fi
 
-QUERY="$1"
-DATE=$(date +%Y-%m-%d)
-SLUG=$(echo "$QUERY" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g')
-RESEARCH_FILE="docs/research/${DATE}-${SLUG}.md"
+slug="$(echo "$q" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g')"
+dir="docs/research"
+mkdir -p "$dir"
 
-# docs/research 디렉토리 생성
-mkdir -p docs/research
+file="$dir/$(date +%Y-%m-%d)-$slug.md"
 
-# 리서치 파일 생성
-cat > "$RESEARCH_FILE" << EOF
-# 리서치: $QUERY
+cat > "$file" <<EOF
+# Research: $q
 
-**날짜**: $DATE  
-**검색어**: $QUERY
+- Date: $(date +'%Y-%m-%d %H:%M %Z')
+- Note: 공개 문서/릴리스 노트/모범사례만 참고. 유료·폐쇄 콘텐츠 스크랩 금지.
 
-## 핵심 링크
+## Findings (links + 1~2줄 요약)
 
-<!-- 여기에 리서치 결과 링크를 추가하세요 -->
+- …
 
-## 요약
+## Apply to repo (plan)
 
-<!-- 주요 발견사항을 요약하세요 -->
+- …
 
-## 적용 가능성
+## Risks / Trade-offs
 
-<!-- 프로젝트에 적용할 수 있는 아이디어를 정리하세요 -->
+- …
 
-## 라이선스 주의점
+## License notes
 
-<!-- 3rd-party 코드/에셋 사용 시 라이선스 확인 사항 -->
-
-## 출처
-
-<!-- 참고한 문서/리소스 목록 -->
+- 출처·라이선스 확인 사항: …
 
 EOF
 
-echo "✅ 리서치 파일 생성: $RESEARCH_FILE"
-echo "📝 파일을 편집하여 리서치 결과를 추가하세요."
+echo "[research] created $file"

@@ -64,3 +64,6 @@ Thumbs.db
 # Misc
 *.pem
 tools/venv/
+
+# Runner detection
+.runner

@@ -1,0 +1,115 @@
+name: Claude Auto-Upgrade
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "선택: 이번 실행의 목표/메모(예: 초기 로딩 30% 단축)"
+        required: false
+  schedule:
+    # 매주 월요일 KST 아침 09:10 (UTC 00:10)
+    - cron: "10 0 * * 1"
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+env:
+  TZ: Asia/Seoul
+
+jobs:
+  self_upgrade:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install helpers (jq, curl)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq curl
+
+      - name: Best-effort install project deps
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            npm i -g pnpm && pnpm i || true
+          elif [ -f yarn.lock ]; then
+            npm i -g yarn && yarn install || true
+          elif [ -f bun.lockb ]; then
+            curl -fsSL https://bun.sh/install | bash -s -- -y || true
+            export PATH="$HOME/.bun/bin:$PATH"
+            bun install || true
+          else
+            npm ci || npm i || true
+          fi
+
+      # ⬇️ Claude Code 액션: 에이전트가 코드 수정/리서치/검증/브랜치 생성까지 수행
+      - name: Run Claude Code (agentic)
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            # Context
+            - Repository: $GITHUB_REPOSITORY
+            - If input.task exists, treat it as the top priority goal:
+              "${{ github.event.inputs.task }}"
+            - Follow CLAUDE.md strictly (self-upgrade rules, risk limits, PR template).
+            - Use Bash(curl,jq,git,npm/pnpm/yarn) for web research & automation (allowed tools).
+            - Keep changes small & safe; document reasons and links.
+
+            # Required flow
+            1) Scan repo & plan small upgrades (deps/security/build/perf/a11y/DX).
+            2) Run web research (public docs/releases/best-practices); record to docs/research/*.
+            3) Apply safe changes.
+            4) Validate via scripts/smoke.sh and/or skills/verify.sh (if present).
+            5) Create a new branch and prepare a PR using the template in CLAUDE.md.
+
+            # Constraints
+            - Never expose secrets; don't touch env/.env.sample contents with real values.
+            - Avoid massive rewrites; avoid framework swaps in a single PR.
+          claude_args: >
+            --model sonnet
+            --max-turns 12
+            --append-system-prompt "You are an autonomous code agent for a JavaScript/TypeScript web game repository. Prefer minimal, reversible changes and clear PR docs."
+            --allowedTools "Read" "Edit" "Glob" "Grep" "Bash(git:*,npm:*,pnpm:*,yarn:*,curl:*,jq:*,node:*)" "View"
+            --verbose
+
+      # 액션이 변경을 워킹트리에 남긴 경우(혹은 브랜치만 만들고 PR 미생성 시) PR을 안전하게 보장
+      - name: Detect changes
+        id: diff
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create PR (fallback if needed)
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: chore/claude-auto-upgrade-${{ github.run_id }}
+          title: "chore(claude): auto upgrade ($(date +'%Y-%m-%d %H:%M %Z'))"
+          commit-message: "chore(claude): auto upgrade"
+          body: |
+            자동 업그레이드 PR (백업 경로).
+            - 실행: ${{ github.workflow }} #${{ github.run_number }}
+            - 입력 task: "${{ github.event.inputs.task }}"
+            - 참고: docs/research/*, docs/logs/* (존재 시 링크)
+          labels: auto, claude, chore
+
+      - name: Smoke Test (post-change)
+        run: |
+          bash scripts/smoke.sh || true
+
