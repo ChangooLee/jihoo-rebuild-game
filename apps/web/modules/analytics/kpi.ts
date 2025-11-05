@@ -13,7 +13,7 @@ export class KPIAnalytics {
     if (logs.length === 0) return 0;
     
     // 완료된 세션 (라운드 3개 이상)
-    const completed = logs.filter(log => log.rounds.length >= 3);
+    const completed = logs.filter((log: SessionLog) => log.rounds.length >= 3);
     return completed.length / logs.length;
   }
 
@@ -24,7 +24,7 @@ export class KPIAnalytics {
     const logs = await db.sessionLogs.toArray();
     if (logs.length === 0) return 0;
     
-    const totalDuration = logs.reduce((sum, log) => sum + log.durationSec, 0);
+    const totalDuration = logs.reduce((sum: number, log: SessionLog) => sum + log.durationSec, 0);
     return totalDuration / logs.length;
   }
 
@@ -65,7 +65,7 @@ export class KPIAnalytics {
     if (logs.length === 0) return 0;
     
     // 휴식이 2회 있는 경우 완전한 세션
-    const withBreaks = logs.filter(log => log.breaks >= 2);
+    const withBreaks = logs.filter((log: SessionLog) => log.breaks >= 2);
     return 1 - (withBreaks.length / logs.length);
   }
 }

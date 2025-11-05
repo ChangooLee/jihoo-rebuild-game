@@ -36,14 +36,14 @@ export class DiagnosticEngine {
       .equals(subject);
     
     if (gradeBand) {
-      query = query.filter(item => item.gradeBand.includes(gradeBand));
+      query = query.filter((item: LearningItem) => item.gradeBand.includes(gradeBand));
     }
 
     // 난이도 분포: 쉬움(1-3), 보통(4-6), 어려움(7-10) 각 4문항
     const items = await query.toArray();
-    const easy = items.filter(i => i.difficulty <= 3).slice(0, 4);
-    const medium = items.filter(i => i.difficulty >= 4 && i.difficulty <= 6).slice(0, 4);
-    const hard = items.filter(i => i.difficulty >= 7).slice(0, 4);
+    const easy = items.filter((i: LearningItem) => i.difficulty <= 3).slice(0, 4);
+    const medium = items.filter((i: LearningItem) => i.difficulty >= 4 && i.difficulty <= 6).slice(0, 4);
+    const hard = items.filter((i: LearningItem) => i.difficulty >= 7).slice(0, 4);
 
     return [...easy, ...medium, ...hard].slice(0, 12);
   }

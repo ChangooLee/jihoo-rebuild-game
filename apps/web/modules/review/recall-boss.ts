@@ -35,7 +35,7 @@ export class RecallBoss {
       const incorrectItems = await db.learningItems
         .where('id')
         .anyOf(incorrectItemIds)
-        .filter(item => !selected.some(s => s.id === item.id))
+        .filter((item: LearningItem) => !selected.some((s: LearningItem) => s.id === item.id))
         .limit(limit - selected.length)
         .toArray();
       selected.push(...incorrectItems);
@@ -44,9 +44,9 @@ export class RecallBoss {
     // 3. 약점 태그 항목
     if (weakTags.length > 0 && selected.length < limit) {
       const weakTagItems = await db.learningItems
-        .filter(item => 
-          item.conceptTag.some(tag => weakTags.includes(tag)) &&
-          !selected.some(s => s.id === item.id)
+        .filter((item: LearningItem) => 
+          item.conceptTag.some((tag: string) => weakTags.includes(tag)) &&
+          !selected.some((s: LearningItem) => s.id === item.id)
         )
         .limit(limit - selected.length)
         .toArray();
