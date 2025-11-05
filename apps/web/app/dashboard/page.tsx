@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { QuestCTA } from '@/components/ui/QuestCTA';
 import { db } from '@/lib/db';
+import { getDueItems } from '@/modules/fsrs/engine';
 import { Clock, Trophy, Target, TrendingUp, Award, Calendar } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -29,11 +30,34 @@ export default function DashboardPage() {
       setTodayQuest(null);
     }
 
-    // 주간 연속 일수
+    // 주간 연속 일수 계산 (날짜 기반)
     const sessions = await db.sessionLogs.toArray();
-    // 간단한 연속 계산 (실제로는 날짜 기반 로직 필요)
-    setWeeklyStreak(Math.min(sessions.length, 7));
     setTotalSessions(sessions.length);
+    
+    // 날짜 기반 연속 일수 계산
+    const sessionDates = new Set<string>();
+    for (const session of sessions) {
+      const date = new Date(session.startAt).toDateString();
+      sessionDates.add(date);
+    }
+    
+    // 최근 7일 중 연속된 날짜 계산 (오늘부터 역순)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // 시간 제거
+    
+    let streak = 0;
+    for (let i = 0; i < 7; i++) {
+      const checkDate = new Date(today);
+      checkDate.setDate(today.getDate() - i);
+      const dateStr = checkDate.toDateString();
+      if (sessionDates.has(dateStr)) {
+        streak++;
+      } else {
+        // 연속이 끊기면 중단 (단, 첫 날(오늘)이 아니면 streak 유지)
+        if (i > 0) break;
+      }
+    }
+    setWeeklyStreak(streak);
 
     // 약점 태그 (상위 3개)
     const profile = await db.userProfile.get('default');
@@ -41,13 +65,9 @@ export default function DashboardPage() {
       setWeakTags(profile.weakTags.slice(0, 3));
     }
 
-    // 리콜 보스 Due 카운트
-    const reviewStates = await db.reviewStates.toArray();
-    const dueItems = reviewStates.filter((state) => {
-      // 간단한 Due 체크 (실제로는 FSRS 로직 필요)
-      return state.lastOutcome === 'again' || state.lastOutcome === 'hard';
-    });
-    setDueCount(dueItems.length);
+    // 리콜 보스 Due 카운트 (FSRS 로직 사용)
+    const dueItemIds = await getDueItems(100); // 충분한 수량 가져오기
+    setDueCount(dueItemIds.length);
 
     // 뱃지 (예시)
     const badgeList = [];

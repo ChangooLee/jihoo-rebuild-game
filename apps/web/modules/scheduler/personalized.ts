@@ -39,6 +39,7 @@ export interface SchedulerConfig {
   weakTags?: string[];
   distribution?: SubjectDistribution;
   weaknessWeight?: number; // 약점 태그 비중 (0-1, 기본 0.6)
+  firstSessionDate?: number; // 첫 세션 날짜 (timestamp, 시간 기반 가중치 계산용)
 }
 
 /**
@@ -86,6 +87,30 @@ export function adjustDistributionForWeakness(
 }
 
 /**
+ * 시간 경과에 따른 약점 가중치 계산
+ * README.md: "첫 2주: 약점 비중 60% → 3-4주차 40%"
+ */
+export function calculateWeaknessWeightByTime(firstSessionDate?: number): number {
+  if (!firstSessionDate) {
+    return 0.6; // 기본값 (첫 2주)
+  }
+  
+  const now = Date.now();
+  const daysSinceFirst = (now - firstSessionDate) / (1000 * 60 * 60 * 24);
+  
+  if (daysSinceFirst < 14) {
+    // 첫 2주: 60%
+    return 0.6;
+  } else if (daysSinceFirst < 28) {
+    // 3-4주차: 40%
+    return 0.4;
+  } else {
+    // 4주 이상: 40% 유지 (또는 더 낮춤)
+    return 0.4;
+  }
+}
+
+/**
  * 개인화 스케줄러
  * 과목 분포 조정 및 약점 태그 기반 출제
  */
@@ -93,9 +118,17 @@ export class PersonalizedScheduler {
   private config: SchedulerConfig;
 
   constructor(config: SchedulerConfig = {}) {
+    // 시간 기반 weaknessWeight 계산
+    let weaknessWeight = config.weaknessWeight;
+    if (weaknessWeight === undefined && config.firstSessionDate !== undefined) {
+      weaknessWeight = calculateWeaknessWeightByTime(config.firstSessionDate);
+    } else if (weaknessWeight === undefined) {
+      weaknessWeight = 0.6; // 기본값
+    }
+    
     this.config = {
       distribution: DEFAULT_DISTRIBUTION,
-      weaknessWeight: 0.6,
+      weaknessWeight,
       ...config,
     };
     
@@ -103,7 +136,7 @@ export class PersonalizedScheduler {
       this.config.distribution = adjustDistributionForWeakness(
         this.config.distribution,
         this.config.weakTags,
-        this.config.weaknessWeight
+        this.config.weaknessWeight!
       );
     }
   }

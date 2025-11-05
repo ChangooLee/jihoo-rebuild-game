@@ -17,6 +17,8 @@ import { SessionResult } from '@/components/SessionResult';
 import type { SessionPhase, LearningItem, RoundResult } from '@/lib/types';
 import { db } from '@/lib/db';
 import { PersonalizedScheduler } from '@/modules/scheduler/personalized';
+import { recordReview } from '@/modules/fsrs/engine';
+import { AdaptiveDifficultyEngine, determineOutcome } from '@/modules/engine/adaptive-difficulty';
 
 export default function SessionPage() {
   const [sessionFlow] = useState(() => new SessionFlowManager());
@@ -25,7 +27,8 @@ export default function SessionPage() {
   const [warmupResult, setWarmupResult] = useState<any>(null);
   const [roundResults, setRoundResults] = useState<RoundResult[]>([]);
   const [incorrectItems, setIncorrectItems] = useState<string[]>([]);
-  const [scheduler] = useState(() => new PersonalizedScheduler());
+  const [scheduler, setScheduler] = useState<PersonalizedScheduler | null>(null);
+  const [adaptiveEngine] = useState(() => new AdaptiveDifficultyEngine());
   const [phaseElapsed, setPhaseElapsed] = useState(0);
   const [totalElapsed, setTotalElapsed] = useState(0);
   const [feedback, setFeedback] = useState<{ type: 'correct' | 'incorrect' | 'complete'; message?: string } | null>(null);
@@ -33,6 +36,19 @@ export default function SessionPage() {
   const [showResult, setShowResult] = useState(false);
 
   useEffect(() => {
+    // 스케줄러 초기화 (UserProfile에서 firstSessionDate 가져오기)
+    const initializeScheduler = async () => {
+      const profile = await db.userProfile.get('default');
+      const schedulerInstance = new PersonalizedScheduler({
+        gradeBand: profile?.gradeBand,
+        weakTags: profile?.weakTags,
+        firstSessionDate: profile?.firstSessionDate,
+      });
+      setScheduler(schedulerInstance);
+    };
+    
+    initializeScheduler();
+
     sessionFlow.onPhaseChangeCallback((phase) => {
       setCurrentPhase(phase);
       handlePhaseChange(phase);
@@ -52,6 +68,8 @@ export default function SessionPage() {
   }, []);
 
   const handlePhaseChange = async (phase: SessionPhase) => {
+    if (!scheduler) return; // 스케줄러가 아직 초기화되지 않음
+    
     if (phase === 'round-a' || phase === 'round-b' || phase === 'round-c') {
       // 라운드 항목 선택
       const items = await scheduler.selectItemsForRound(10);
@@ -73,13 +91,37 @@ export default function SessionPage() {
     sessionFlow.nextPhase();
   };
 
-  const handleRoundComplete = (results: { itemId: string; correct: boolean; latencyMs: number }[]) => {
+  const handleRoundComplete = async (results: { itemId: string; correct: boolean; latencyMs: number }[]) => {
     const correct = results.filter((r) => r.correct).length;
     const avgLatency = results.reduce((sum, r) => sum + r.latencyMs, 0) / results.length;
 
     // 오답 항목 추적
     const incorrect = results.filter((r) => !r.correct).map((r) => r.itemId);
     setIncorrectItems((prev) => [...prev, ...incorrect]);
+
+    // 각 결과에 대해 FSRS 상태 실시간 업데이트
+    const baselineLatency = avgLatency;
+    for (const result of results) {
+      const item = roundItems.find((i) => i.id === result.itemId);
+      if (item) {
+        // AdaptiveDifficultyEngine을 사용하여 outcome 결정
+        const outcome = determineOutcome(
+          result.correct,
+          result.latencyMs,
+          baselineLatency
+        );
+        
+        // FSRS 상태 업데이트
+        await recordReview(result.itemId, outcome, result.latencyMs);
+        
+        // AdaptiveDifficultyEngine에도 기록 (난이도 추적용)
+        adaptiveEngine.recordResponse(item.id, item, {
+          isCorrect: result.correct,
+          latencyMs: result.latencyMs,
+          baselineLatencyMs: baselineLatency,
+        });
+      }
+    }
 
     // 라운드 결과 저장
     const roundResult: RoundResult = {
@@ -98,8 +140,8 @@ export default function SessionPage() {
     sessionFlow.nextPhase();
   };
 
-  const handleRecallBossComplete = (results: { itemId: string; correct: boolean; latencyMs: number }[]) => {
-    handleRoundComplete(results);
+  const handleRecallBossComplete = async (results: { itemId: string; correct: boolean; latencyMs: number }[]) => {
+    await handleRoundComplete(results);
   };
 
   const saveSession = async (state: any) => {
@@ -109,6 +151,16 @@ export default function SessionPage() {
       rounds: state.roundResults,
       breaks: 2,
     });
+    
+    // 첫 세션 날짜 기록 (README.md: 시간 가중치 조정용)
+    const profile = await db.userProfile.get('default');
+    if (!profile || !profile.firstSessionDate) {
+      await db.userProfile.put({
+        id: 'default',
+        ...profile,
+        firstSessionDate: state.startTime,
+      });
+    }
   };
 
   // 결과 화면

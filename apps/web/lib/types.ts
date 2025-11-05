@@ -67,6 +67,7 @@ export interface UserProfile {
   preferredFont?: 'default' | 'lexend' | 'opendyslexic';
   animationIntensity?: number; // 0-1
   focusMode?: boolean;
+  firstSessionDate?: number; // 첫 세션 시작 날짜 (timestamp)
 }
 
 // 세션 관련 타입

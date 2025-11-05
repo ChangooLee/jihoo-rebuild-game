@@ -29,6 +29,10 @@ export class DiagnosticEngine {
 
   /**
    * 진단 테스트 항목 선택 (과목별 12문항)
+   * README.md 요구사항:
+   * - 수학: 4영역 × 3문항 (수와연산, 변화와관계, 도형과측정, 자료와가능성)
+   * - 영어: 듣기 4 / 읽기 4 / 문법 4
+   * - 과학/사회: 핵심 개념 혼합 12문항
    */
   async selectDiagnosticItems(subject: Subject, gradeBand?: GradeBand): Promise<LearningItem[]> {
     let query = db.learningItems
@@ -39,13 +43,75 @@ export class DiagnosticEngine {
       query = query.filter((item: LearningItem) => item.gradeBand.includes(gradeBand));
     }
 
-    // 난이도 분포: 쉬움(1-3), 보통(4-6), 어려움(7-10) 각 4문항
     const items = await query.toArray();
-    const easy = items.filter((i: LearningItem) => i.difficulty <= 3).slice(0, 4);
-    const medium = items.filter((i: LearningItem) => i.difficulty >= 4 && i.difficulty <= 6).slice(0, 4);
-    const hard = items.filter((i: LearningItem) => i.difficulty >= 7).slice(0, 4);
-
-    return [...easy, ...medium, ...hard].slice(0, 12);
+    
+    if (subject === 'math') {
+      // 수학: 4영역 × 3문항
+      const areas = ['수와연산', '변화와관계', '도형과측정', '자료와가능성'];
+      const selected: LearningItem[] = [];
+      
+      for (const area of areas) {
+        const areaItems = items.filter((i: LearningItem) => 
+          i.area.includes(area) || i.area === `math.${area}`
+        );
+        // 각 영역에서 난이도 분포 고려하여 3문항 선택
+        const easy = areaItems.filter((i: LearningItem) => i.difficulty <= 4).slice(0, 1);
+        const medium = areaItems.filter((i: LearningItem) => i.difficulty >= 5 && i.difficulty <= 7).slice(0, 1);
+        const hard = areaItems.filter((i: LearningItem) => i.difficulty >= 8).slice(0, 1);
+        
+        // 부족하면 모든 난이도에서 선택
+        const needed = 3 - (easy.length + medium.length + hard.length);
+        if (needed > 0) {
+          const remaining = areaItems.filter((i: LearningItem) => 
+            !easy.includes(i) && !medium.includes(i) && !hard.includes(i)
+          ).slice(0, needed);
+          selected.push(...easy, ...medium, ...hard, ...remaining);
+        } else {
+          selected.push(...easy, ...medium, ...hard);
+        }
+      }
+      
+      return selected.slice(0, 12);
+    } else if (subject === 'english') {
+      // 영어: 듣기 4 / 읽기 4 / 문법 4
+      const listening = items.filter((i: LearningItem) => 
+        i.area.includes('listening') || i.conceptTag.some((tag: string) => tag.includes('듣기'))
+      );
+      const reading = items.filter((i: LearningItem) => 
+        i.area.includes('reading') || i.conceptTag.some((tag: string) => tag.includes('읽기')) ||
+        (i.area.includes('vocabulary') && !i.area.includes('grammar'))
+      );
+      const grammar = items.filter((i: LearningItem) => 
+        i.area.includes('grammar') || i.conceptTag.some((tag: string) => tag.includes('문법'))
+      );
+      
+      const selected: LearningItem[] = [];
+      selected.push(...listening.slice(0, 4));
+      selected.push(...reading.slice(0, 4));
+      selected.push(...grammar.slice(0, 4));
+      
+      // 부족하면 전체에서 추가 선택
+      if (selected.length < 12) {
+        const remaining = items.filter((i: LearningItem) => !selected.includes(i)).slice(0, 12 - selected.length);
+        selected.push(...remaining);
+      }
+      
+      return selected.slice(0, 12);
+    } else {
+      // 과학/사회: 핵심 개념 혼합 12문항 (난이도 분포 고려)
+      const easy = items.filter((i: LearningItem) => i.difficulty <= 3).slice(0, 4);
+      const medium = items.filter((i: LearningItem) => i.difficulty >= 4 && i.difficulty <= 6).slice(0, 4);
+      const hard = items.filter((i: LearningItem) => i.difficulty >= 7).slice(0, 4);
+      
+      // 부족하면 전체에서 추가 선택
+      const selected = [...easy, ...medium, ...hard];
+      if (selected.length < 12) {
+        const remaining = items.filter((i: LearningItem) => !selected.includes(i)).slice(0, 12 - selected.length);
+        selected.push(...remaining);
+      }
+      
+      return selected.slice(0, 12);
+    }
   }
 
   /**
