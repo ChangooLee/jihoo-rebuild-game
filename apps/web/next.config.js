@@ -1,9 +1,16 @@
-const withPWA = require('next-pwa')({
-  dest: 'public',
-  register: true,
-  skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development',
-})
+const withPWA = (() => {
+  try {
+    return require('next-pwa')({
+      dest: 'public',
+      register: true,
+      skipWaiting: true,
+      disable: process.env.NODE_ENV === 'development',
+    });
+  } catch {
+    // next-pwa 미존재 시에도 빌드 진행
+    return (cfg) => cfg;
+  }
+})();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
