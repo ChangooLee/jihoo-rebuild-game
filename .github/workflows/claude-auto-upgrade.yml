@@ -110,10 +110,12 @@ jobs:
           git --no-pager diff --name-status -- apps/ docs/ skills/ tools/ .github/ "**/*.md" || true
           echo "---- untracked files (allowed paths) ----"
           git ls-files --others --exclude-standard -- apps/ docs/ skills/ tools/ .github/ "**/*.md" || true
+          echo "---- git diff summary ----"
+          git diff --stat -- apps/ docs/ skills/ tools/ .github/ "**/*.md" || true
           echo "---------------------------------------"
 
       # 액션이 변경을 워킹트리에 남긴 경우(혹은 브랜치만 만들고 PR 미생성 시) PR을 안전하게 보장
-      - name: Detect changes
+      - name: Detect changes and prepare PR metadata
         id: diff
         run: |
           git config user.name "github-actions[bot]"
@@ -123,11 +125,23 @@ jobs:
           if [ "$CHANGED_FILES" -eq 0 ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No changes detected in allowed paths"
+            echo "::notice::No-Op: Selected task was already satisfied (no diff). PR will not be created."
+            # No-Op 로그 작성 (선택적)
+            mkdir -p docs/logs
+            echo "- $(date +'%Y-%m-%d %H:%M:%S UTC' -u): No-Op - Selected task already satisfied, no changes needed" >> docs/logs/auto-tasks-noop.log || true
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
             echo "Changes detected: $CHANGED_FILES files"
             git status --porcelain -- apps/ docs/ skills/ tools/ .github/ "**/*.md" || true
+            # 변경된 파일 목록을 PR 본문에 포함하기 위해 저장
+            CHANGED_LIST=$(git diff --name-only -- apps/ docs/ skills/ tools/ .github/ "**/*.md" 2>/dev/null | head -20 || echo "")
+            echo "changed_files<<EOF" >> "$GITHUB_OUTPUT"
+            echo "$CHANGED_LIST" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
           fi
+          # 타임스탬프 생성
+          TIMESTAMP=$(date +'%Y-%m-%d %H:%M %Z')
+          echo "timestamp=$TIMESTAMP" >> "$GITHUB_OUTPUT"
 
       - name: Create PR (allowed paths only, after verify)
         if: steps.diff.outputs.changed == 'true'
@@ -135,10 +149,28 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: chore/claude-auto-task-${{ github.run_id }}
-          title: "feat(claude): auto task – $(date +'%Y-%m-%d %H:%M %Z')"
-          commit-message: "feat(claude): auto task"
+          title: "feat(claude): auto task – ${{ steps.diff.outputs.timestamp }}"
+          commit-message: "feat(claude): auto task – ${{ steps.diff.outputs.timestamp }}"
           body: |
-            Auto Task PR (fallback). See research/logs and CLAUDE.md §17.
+            ## Auto Task PR
+
+            **실행 시간**: ${{ steps.diff.outputs.timestamp }}  
+            **워크플로**: ${{ github.workflow }} #${{ github.run_number }}  
+            **실행 ID**: ${{ github.run_id }}
+
+            ### 변경 파일
+
+            ```
+            ${{ steps.diff.outputs.changed_files }}
+            ```
+
+            ### 참고
+
+            - 연구 문서: `docs/research/` (존재 시)
+            - 업그레이드 로그: `docs/UPGRADE_LOG.md`
+            - 자동 태스크 규칙: `CLAUDE.md` §17
+
+            자동 생성된 PR입니다. 자세한 내용은 위 문서를 참조하세요.
           labels: auto, claude, feature
           delete-branch: false
           # ✅ 허용 경로만 PR에 포함
@@ -149,4 +181,13 @@ jobs:
             tools/**
             .github/**
             **/*.md
+
+      - name: Log No-Op status
+        if: steps.diff.outputs.changed == 'false'
+        run: |
+          echo "::notice::No-Op: No changes detected. PR was not created."
+          echo "## No-Op Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: No changes detected in allowed paths" >> $GITHUB_STEP_SUMMARY
+          echo "- **Time**: $(date +'%Y-%m-%d %H:%M:%S UTC' -u)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Reason**: Selected task was already satisfied (no diff)" >> $GITHUB_STEP_SUMMARY
 
