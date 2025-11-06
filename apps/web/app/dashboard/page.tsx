@@ -81,6 +81,22 @@ export default function DashboardPage() {
     window.location.href = '/jihoo/session';
   };
 
+  const handleSkipQuest = async () => {
+    // 스킵 시 오늘 날짜로 세션 로그 저장 (연속 일수 유지용)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    await db.sessionLogs.add({
+      startAt: today.getTime(),
+      durationSec: 0,
+      rounds: [],
+      breaks: 0,
+    });
+    
+    // 대시보드 새로고침
+    window.location.reload();
+  };
+
   const handleDiagnostic = () => {
     window.location.href = '/jihoo/diagnostic';
   };
@@ -99,7 +115,7 @@ export default function DashboardPage() {
 
           {/* 오늘 할 일 */}
           {todayQuest && (
-            <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 mb-4 flex items-center justify-between">
+            <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 mb-4 flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <Calendar className="w-6 h-6 text-primary" />
                 <div>
@@ -109,13 +125,23 @@ export default function DashboardPage() {
                   </p>
                 </div>
               </div>
-              <Button
-                onClick={handleStartQuest}
-                data-analytics="dashboard_start_quest"
-                className="touch-target"
-              >
-                시작하기
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={handleSkipQuest}
+                  data-analytics="dashboard_skip_quest"
+                  variant="outline"
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  스킵
+                </Button>
+                <Button
+                  onClick={handleStartQuest}
+                  data-analytics="dashboard_start_quest"
+                  className="touch-target"
+                >
+                  시작하기
+                </Button>
+              </div>
             </div>
           )}
 
