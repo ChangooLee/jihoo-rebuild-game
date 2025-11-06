@@ -42,13 +42,13 @@ export default function DashboardPage() {
     }
     
     // 최근 7일 중 연속된 날짜 계산 (오늘부터 역순)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // 시간 제거
+    const todayDate = new Date();
+    todayDate.setHours(0, 0, 0, 0); // 시간 제거
     
     let streak = 0;
     for (let i = 0; i < 7; i++) {
-      const checkDate = new Date(today);
-      checkDate.setDate(today.getDate() - i);
+      const checkDate = new Date(todayDate);
+      checkDate.setDate(todayDate.getDate() - i);
       const dateStr = checkDate.toDateString();
       if (sessionDates.has(dateStr)) {
         streak++;
