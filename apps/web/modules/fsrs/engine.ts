@@ -4,8 +4,28 @@ import { db } from '@/lib/db';
 
 const fsrs = new FSRS();
 
-// fsrs.repeat 반환의 최소 필요한 형태를 명시해 Lint/TS 경고 제거
-type SchedulingResult = Record<Rating, { card: Card; log?: unknown }>;
+/**
+ * Type definition for FSRS scheduling results.
+ * Each Rating maps to a card state and optional log entry.
+ *
+ * @see {@link https://github.com/open-spaced-repetition/fsrs.js}
+ */
+interface RecordLogItem {
+  card: Card;
+  log?: {
+    rating: Rating;
+    state: number;
+    due: Date;
+    stability: number;
+    difficulty: number;
+    elapsed_days: number;
+    last_elapsed_days: number;
+    scheduled_days: number;
+    review: Date;
+  };
+}
+
+type SchedulingResult = Record<Rating, RecordLogItem>;
 
 /**
  * FSRS 결과를 ReviewState의 FSRSOutcome으로 변환합니다.
@@ -25,6 +45,11 @@ export function outcomeToRating(outcome: FSRSOutcome): Rating {
 
 /**
  * 리콜 결과를 기록하고 FSRS 상태를 업데이트합니다.
+ *
+ * @param itemId - 학습 항목 ID
+ * @param outcome - 리콜 결과 (again/hard/good/easy)
+ * @param latencyMs - 응답 시간 (밀리초)
+ * @returns 업데이트된 ReviewState
  */
 export async function recordReview(
   itemId: string,
@@ -32,15 +57,15 @@ export async function recordReview(
   latencyMs?: number
 ): Promise<ReviewState> {
   const existing = await db.reviewStates.get(itemId);
-  
-  const card = existing?.fsrs 
+
+  const card: Card = existing?.fsrs
     ? existing.fsrs
     : new Card();
 
   const now = new Date();
   const rating = outcomeToRating(outcome);
-  const schedulingCards = fsrs.repeat(card, now) as SchedulingResult;
-  const selectedCard = schedulingCards[rating];
+  const schedulingCards: SchedulingResult = fsrs.repeat(card, now);
+  const selectedCard: RecordLogItem = schedulingCards[rating];
 
   const reviewState: ReviewState = {
     itemId,
