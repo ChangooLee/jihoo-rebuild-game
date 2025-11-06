@@ -40,7 +40,6 @@ export default function SessionPage() {
   const [subjectTimes, setSubjectTimes] = useState({ math: 0, english: 0, science: 0, social: 0 });
   const [showResult, setShowResult] = useState(false);
   const [selectedWarmupGame, setSelectedWarmupGame] = useState<WarmupGame | null>(null);
-  const [showSkipDialog, setShowSkipDialog] = useState(false);
 
   useEffect(() => {
     // 워밍업 게임 랜덤 선택 (컴포넌트 마운트 시 한 번만)
@@ -60,9 +59,11 @@ export default function SessionPage() {
     
     initializeScheduler();
 
-    sessionFlow.onPhaseChangeCallback((phase) => {
+    // 페이즈 변경 콜백 등록
+    sessionFlow.onPhaseChangeCallback(async (phase) => {
+      console.log('Phase changed to:', phase);
       setCurrentPhase(phase);
-      handlePhaseChange(phase);
+      await handlePhaseChange(phase);
     });
 
     sessionFlow.onCompleteCallback((state) => {
@@ -79,7 +80,35 @@ export default function SessionPage() {
   }, []);
 
   const handlePhaseChange = async (phase: SessionPhase) => {
-    if (!scheduler) return; // 스케줄러가 아직 초기화되지 않음
+    // scheduler가 아직 준비되지 않았으면 대기
+    if (!scheduler) {
+      // scheduler 준비 대기
+      const checkScheduler = async () => {
+        const profile = await db.userProfile.get('default');
+        const schedulerInstance = new PersonalizedScheduler({
+          gradeBand: profile?.gradeBand,
+          weakTags: profile?.weakTags,
+          firstSessionDate: profile?.firstSessionDate,
+        });
+        setScheduler(schedulerInstance);
+        
+        // scheduler 준비 후 다시 처리
+        if (phase === 'round-a' || phase === 'round-b' || phase === 'round-c') {
+          const items = await schedulerInstance.selectItemsForRound(10);
+          setRoundItems(items);
+        } else if (phase === 'recall-boss') {
+          const items = await recallBoss.selectRecallItems(
+            incorrectItems,
+            profile?.weakTags || [],
+            10
+          );
+          setRoundItems(items);
+        }
+      };
+      
+      await checkScheduler();
+      return;
+    }
     
     if (phase === 'round-a' || phase === 'round-b' || phase === 'round-c') {
       // 라운드 항목 선택
@@ -97,22 +126,12 @@ export default function SessionPage() {
     }
   };
 
-  const handleWarmupComplete = (result: any) => {
+  const handleWarmupComplete = async (result: any) => {
     setWarmupResult(result);
-    // SessionFlowManager의 타이머가 있는 경우 정리하고 다음 페이즈로
-    // nextPhase() 내부에서 이미 타이머를 정리하므로 바로 호출
-    try {
-      sessionFlow.nextPhase();
-    } catch (error) {
-      console.error('Phase transition error:', error);
-      // 에러가 발생해도 다음 페이즈로 강제 이동
-      const currentPhaseIndex = ['warmup', 'round-a', 'break-1', 'round-b', 'break-2', 'round-c', 'recall-boss', 'report'].indexOf(currentPhase);
-      if (currentPhaseIndex < 7) {
-        const nextPhase = ['warmup', 'round-a', 'break-1', 'round-b', 'break-2', 'round-c', 'recall-boss', 'report'][currentPhaseIndex + 1] as SessionPhase;
-        setCurrentPhase(nextPhase);
-        handlePhaseChange(nextPhase);
-      }
-    }
+    // 다음 페이즈로 이동
+    // SessionFlowManager의 nextPhase()가 onPhaseChange 콜백을 호출하므로
+    // currentPhase가 자동으로 업데이트됨
+    sessionFlow.nextPhase();
   };
 
   const handleRoundComplete = async (results: { itemId: string; correct: boolean; latencyMs: number }[]) => {
@@ -187,22 +206,9 @@ export default function SessionPage() {
     }
   };
 
-  const handleSkipSession = async () => {
-    setShowSkipDialog(true);
-  };
-
-  const confirmSkipSession = async () => {
-    // 현재까지의 결과 저장 (부분 세션 로그)
-    const state = sessionFlow.getState();
-    await db.sessionLogs.add({
-      startAt: state.startTime,
-      durationSec: state.elapsedSeconds,
-      rounds: state.roundResults,
-      breaks: 0, // 스킵했으므로 휴식 없음
-    });
-    
-    // 대시보드로 이동
-    window.location.href = '/dashboard';
+  const handleSkipPhase = () => {
+    // 현재 페이즈를 스킵하고 다음 페이즈로 이동
+    sessionFlow.nextPhase();
   };
 
   // 결과 화면
@@ -232,42 +238,16 @@ export default function SessionPage() {
         }))}
       />
 
-      {/* 세션 스킵 버튼 */}
+      {/* 단계 스킵 버튼 */}
       <div className="fixed top-4 right-4 z-50">
         <Button
-          onClick={handleSkipSession}
+          onClick={handleSkipPhase}
           variant="outline"
           className="bg-white/90 hover:bg-white"
         >
-          세션 스킵
+          다음 단계
         </Button>
       </div>
-
-      {/* 스킵 확인 다이얼로그 */}
-      {showSkipDialog && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md mx-4">
-            <h2 className="text-xl font-bold mb-4">세션을 스킵하시겠습니까?</h2>
-            <p className="text-gray-600 mb-6">
-              현재 세션을 종료하고 대시보드로 돌아갑니다. 현재까지의 진행 상황은 저장됩니다.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <Button
-                onClick={() => setShowSkipDialog(false)}
-                variant="outline"
-              >
-                취소
-              </Button>
-              <Button
-                onClick={confirmSkipSession}
-                className="bg-red-500 hover:bg-red-600"
-              >
-                스킵
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 즉각 피드백 */}
       {feedback && (
@@ -306,45 +286,59 @@ export default function SessionPage() {
           />
         )}
 
-        {currentPhase === 'round-a' && roundItems.filter(item => item.subject === 'math').length > 0 && (
-          <SpeedCalculation
-            items={roundItems.filter(item => item.subject === 'math')}
-            onComplete={handleRoundComplete}
-            timeLimit={180}
-          />
+        {currentPhase === 'round-a' && (
+          roundItems.filter(item => item.subject === 'math').length > 0 ? (
+            <SpeedCalculation
+              items={roundItems.filter(item => item.subject === 'math')}
+              onComplete={handleRoundComplete}
+              timeLimit={180}
+            />
+          ) : (
+            <div className="text-center">준비 중...</div>
+          )
         )}
 
-        {currentPhase === 'round-b' && roundItems.filter(item => item.subject === 'english').length > 0 && (
-          <ListeningGame
-            items={roundItems.filter(item => item.subject === 'english')}
-            onComplete={handleRoundComplete}
-          />
+        {currentPhase === 'round-b' && (
+          roundItems.filter(item => item.subject === 'english').length > 0 ? (
+            <ListeningGame
+              items={roundItems.filter(item => item.subject === 'english')}
+              onComplete={handleRoundComplete}
+            />
+          ) : (
+            <div className="text-center">준비 중...</div>
+          )
         )}
 
-        {currentPhase === 'round-c' && roundItems.filter(item => item.subject === 'science' || item.subject === 'social').length > 0 && (
-          <>
-            {roundItems.filter(item => item.subject === 'science').length > 0 ? (
-              <CauseEffect
-                items={roundItems.filter(item => item.subject === 'science')}
-                onComplete={handleRoundComplete}
-              />
-            ) : (
-              <ScenarioGame
-                items={roundItems.filter(item => item.subject === 'social')}
-                onComplete={handleRoundComplete}
-              />
-            )}
-          </>
+        {currentPhase === 'round-c' && (
+          roundItems.filter(item => item.subject === 'science' || item.subject === 'social').length > 0 ? (
+            <>
+              {roundItems.filter(item => item.subject === 'science').length > 0 ? (
+                <CauseEffect
+                  items={roundItems.filter(item => item.subject === 'science')}
+                  onComplete={handleRoundComplete}
+                />
+              ) : (
+                <ScenarioGame
+                  items={roundItems.filter(item => item.subject === 'social')}
+                  onComplete={handleRoundComplete}
+                />
+              )}
+            </>
+          ) : (
+            <div className="text-center">준비 중...</div>
+          )
         )}
 
-        {currentPhase === 'recall-boss' && roundItems.length > 0 && (
-          <ScenarioGame
-            items={roundItems}
-            onComplete={handleRecallBossComplete}
-          />
+        {currentPhase === 'recall-boss' && (
+          roundItems.length > 0 ? (
+            <ScenarioGame
+              items={roundItems}
+              onComplete={handleRecallBossComplete}
+            />
+          ) : (
+            <div className="text-center">준비 중...</div>
+          )
         )}
-
-        {!currentPhase && <div className="text-center">준비 중...</div>}
       </div>
 
       {/* 하단 과목별 시간 바 */}
