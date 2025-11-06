@@ -6,7 +6,7 @@ import { SessionFlowManager } from '@/modules/focus/session-flow';
 import { BoxBreathing } from '@/modules/focus/break';
 import { StroopTask, NumberSequenceGame, DirectionReactionGame, ColorMatchGame } from '@/game/warmup';
 import { SpeedCalculation } from '@/game/math';
-import { ListeningGame, SpeakingGame } from '@/game/english';
+import { ListeningGame, SpeakingGame, FPSGame } from '@/game/english';
 import { CauseEffect } from '@/game/science';
 import { ScenarioGame } from '@/game/social';
 import { recallBoss } from '@/modules/review/recall-boss';
@@ -300,10 +300,20 @@ export default function SessionPage() {
 
         {currentPhase === 'round-b' && (
           roundItems.filter(item => item.subject === 'english').length > 0 ? (
-            <ListeningGame
-              items={roundItems.filter(item => item.subject === 'english')}
-              onComplete={handleRoundComplete}
-            />
+            (() => {
+              // 영어 게임 랜덤 선택 (ListeningGame, SpeakingGame, FPSGame)
+              const englishGames = ['listening', 'speaking', 'fps'];
+              const randomGame = englishGames[Math.floor(Math.random() * englishGames.length)];
+              const englishItems = roundItems.filter(item => item.subject === 'english');
+              
+              if (randomGame === 'listening') {
+                return <ListeningGame items={englishItems} onComplete={handleRoundComplete} />;
+              } else if (randomGame === 'speaking') {
+                return <SpeakingGame items={englishItems} onComplete={handleRoundComplete} />;
+              } else {
+                return <FPSGame items={englishItems} onComplete={handleRoundComplete} />;
+              }
+            })()
           ) : (
             <div className="text-center">준비 중...</div>
           )
