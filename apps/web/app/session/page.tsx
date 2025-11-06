@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { SessionFlowManager } from '@/modules/focus/session-flow';
 import { BoxBreathing } from '@/modules/focus/break';
-import { StroopTask } from '@/game/warmup';
+import { StroopTask, NumberSequenceGame, DirectionReactionGame, ColorMatchGame } from '@/game/warmup';
 import { SpeedCalculation } from '@/game/math';
 import { ListeningGame, SpeakingGame } from '@/game/english';
 import { CauseEffect } from '@/game/science';
@@ -20,6 +20,11 @@ import { PersonalizedScheduler } from '@/modules/scheduler/personalized';
 import { recordReview } from '@/modules/fsrs/engine';
 import { AdaptiveDifficultyEngine, determineOutcome } from '@/modules/engine/adaptive-difficulty';
 
+// 워밍업 게임 타입 정의
+type WarmupGame = 'stroop' | 'number-sequence' | 'direction-reaction' | 'color-match';
+
+const WARMUP_GAMES: WarmupGame[] = ['stroop', 'number-sequence', 'direction-reaction', 'color-match'];
+
 export default function SessionPage() {
   const [sessionFlow] = useState(() => new SessionFlowManager());
   const [currentPhase, setCurrentPhase] = useState<SessionPhase>('warmup');
@@ -34,8 +39,14 @@ export default function SessionPage() {
   const [feedback, setFeedback] = useState<{ type: 'correct' | 'incorrect' | 'complete'; message?: string } | null>(null);
   const [subjectTimes, setSubjectTimes] = useState({ math: 0, english: 0, science: 0, social: 0 });
   const [showResult, setShowResult] = useState(false);
+  const [selectedWarmupGame, setSelectedWarmupGame] = useState<WarmupGame | null>(null);
+  const [showSkipDialog, setShowSkipDialog] = useState(false);
 
   useEffect(() => {
+    // 워밍업 게임 랜덤 선택 (컴포넌트 마운트 시 한 번만)
+    const randomGame = WARMUP_GAMES[Math.floor(Math.random() * WARMUP_GAMES.length)];
+    setSelectedWarmupGame(randomGame);
+
     // 스케줄러 초기화 (UserProfile에서 firstSessionDate 가져오기)
     const initializeScheduler = async () => {
       const profile = await db.userProfile.get('default');
@@ -88,7 +99,20 @@ export default function SessionPage() {
 
   const handleWarmupComplete = (result: any) => {
     setWarmupResult(result);
-    sessionFlow.nextPhase();
+    // SessionFlowManager의 타이머가 있는 경우 정리하고 다음 페이즈로
+    // nextPhase() 내부에서 이미 타이머를 정리하므로 바로 호출
+    try {
+      sessionFlow.nextPhase();
+    } catch (error) {
+      console.error('Phase transition error:', error);
+      // 에러가 발생해도 다음 페이즈로 강제 이동
+      const currentPhaseIndex = ['warmup', 'round-a', 'break-1', 'round-b', 'break-2', 'round-c', 'recall-boss', 'report'].indexOf(currentPhase);
+      if (currentPhaseIndex < 7) {
+        const nextPhase = ['warmup', 'round-a', 'break-1', 'round-b', 'break-2', 'round-c', 'recall-boss', 'report'][currentPhaseIndex + 1] as SessionPhase;
+        setCurrentPhase(nextPhase);
+        handlePhaseChange(nextPhase);
+      }
+    }
   };
 
   const handleRoundComplete = async (results: { itemId: string; correct: boolean; latencyMs: number }[]) => {
@@ -163,6 +187,24 @@ export default function SessionPage() {
     }
   };
 
+  const handleSkipSession = async () => {
+    setShowSkipDialog(true);
+  };
+
+  const confirmSkipSession = async () => {
+    // 현재까지의 결과 저장 (부분 세션 로그)
+    const state = sessionFlow.getState();
+    await db.sessionLogs.add({
+      startAt: state.startTime,
+      durationSec: state.elapsedSeconds,
+      rounds: state.roundResults,
+      breaks: 0, // 스킵했으므로 휴식 없음
+    });
+    
+    // 대시보드로 이동
+    window.location.href = '/dashboard';
+  };
+
   // 결과 화면
   if (currentPhase === 'report' || showResult) {
     return (
@@ -190,6 +232,43 @@ export default function SessionPage() {
         }))}
       />
 
+      {/* 세션 스킵 버튼 */}
+      <div className="fixed top-4 right-4 z-50">
+        <Button
+          onClick={handleSkipSession}
+          variant="outline"
+          className="bg-white/90 hover:bg-white"
+        >
+          세션 스킵
+        </Button>
+      </div>
+
+      {/* 스킵 확인 다이얼로그 */}
+      {showSkipDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md mx-4">
+            <h2 className="text-xl font-bold mb-4">세션을 스킵하시겠습니까?</h2>
+            <p className="text-gray-600 mb-6">
+              현재 세션을 종료하고 대시보드로 돌아갑니다. 현재까지의 진행 상황은 저장됩니다.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button
+                onClick={() => setShowSkipDialog(false)}
+                variant="outline"
+              >
+                취소
+              </Button>
+              <Button
+                onClick={confirmSkipSession}
+                className="bg-red-500 hover:bg-red-600"
+              >
+                스킵
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 즉각 피드백 */}
       {feedback && (
         <InstantFeedback
@@ -201,8 +280,21 @@ export default function SessionPage() {
 
       {/* 메인 콘텐츠 */}
       <div className="pt-24 pb-32">
-        {currentPhase === 'warmup' && (
-          <StroopTask onComplete={handleWarmupComplete} duration={90} />
+        {currentPhase === 'warmup' && selectedWarmupGame && (
+          <>
+            {selectedWarmupGame === 'stroop' && (
+              <StroopTask onComplete={handleWarmupComplete} duration={90} />
+            )}
+            {selectedWarmupGame === 'number-sequence' && (
+              <NumberSequenceGame onComplete={handleWarmupComplete} duration={90} />
+            )}
+            {selectedWarmupGame === 'direction-reaction' && (
+              <DirectionReactionGame onComplete={handleWarmupComplete} duration={90} />
+            )}
+            {selectedWarmupGame === 'color-match' && (
+              <ColorMatchGame onComplete={handleWarmupComplete} duration={90} />
+            )}
+          </>
         )}
 
         {(currentPhase === 'break-1' || currentPhase === 'break-2') && (
