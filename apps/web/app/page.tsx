@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { QuestCTA } from '@/components/ui/QuestCTA';
 import { GameCard } from '@/components/GameCard';
 import { Zap, Target, Brain, GraduationCap, Calculator, BookOpen, FlaskConical, Globe, Activity } from 'lucide-react';
@@ -8,20 +9,22 @@ import { Zap, Target, Brain, GraduationCap, Calculator, BookOpen, FlaskConical, 
 type GradeBand = 'ES' | 'MS';
 
 export default function HomePage() {
+  const router = useRouter();
+
   const handleStartQuest = () => {
-    window.location.href = '/jihoo/session';
+    router.push('/session');
   };
 
   const handleFreePractice = () => {
-    window.location.href = '/jihoo/dashboard';
+    router.push('/dashboard');
   };
 
   const handleDiagnostic = () => {
-    window.location.href = '/jihoo/diagnostic';
+    router.push('/diagnostic');
   };
 
   const handleGameClick = (subject: string, gameType: string) => {
-    window.location.href = `/jihoo/games/${subject}/${gameType}`;
+    router.push(`/games/${subject}/${gameType}`);
   };
 
   return (

@@ -140,32 +140,38 @@ export function ColorMatchGame({ onComplete, duration = 90 }: ColorMatchGameProp
   const targetColorName = COLORS.find(c => c.value === targetColor)?.name || '';
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="mb-4 text-center">
-        <p className="text-lg font-semibold">남은 시간: {Math.floor(remainingTime / 60)}:{(remainingTime % 60).toString().padStart(2, '0')}</p>
-        <p className="text-sm text-gray-600">정답: {correct} / 오답: {incorrect}</p>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background">
+      <div className="mb-8 bg-card border border-border/50 rounded-2xl p-6 text-center">
+        <p className="text-lg font-semibold text-foreground mb-2">
+          남은 시간: {Math.floor(remainingTime / 60)}:{(remainingTime % 60).toString().padStart(2, '0')}
+        </p>
+        <p className="text-body-md text-muted-foreground">
+          정답: <span className="text-success font-bold">{correct}</span> / 오답: <span className="text-error font-bold">{incorrect}</span>
+        </p>
       </div>
 
-      <div className="mb-8 text-center">
-        <p className="text-sm text-gray-500 mb-6">목표 색상을 빠르게 찾아 클릭하세요</p>
-        <div className="mb-6">
-          <p className="text-2xl font-bold mb-4">목표: <span style={{ color: targetColor }}>{targetColorName}</span></p>
+      <div className="mb-12 text-center">
+        <p className="text-label-sm text-muted-foreground mb-6">목표 색상을 빠르게 찾아 클릭하세요</p>
+        <div className="mb-8 bg-card border border-border/50 rounded-2xl p-6">
+          <p className="text-2xl font-bold text-foreground mb-4">
+            목표: <span style={{ color: targetColor }}>{targetColorName}</span>
+          </p>
           {!showColors && (
-            <div className="text-4xl font-bold text-gray-400 animate-pulse">준비...</div>
+            <div className="text-4xl font-bold text-muted-foreground animate-pulse">준비...</div>
           )}
         </div>
       </div>
 
       {showColors && (
-        <div className="grid grid-cols-3 gap-4 max-w-md">
+        <div className="grid grid-cols-3 gap-6 max-w-md">
           {displayedColors.map((color, idx) => (
             <button
               key={idx}
               onClick={() => handleColorClick(color)}
               disabled={selectedColor !== null}
-              className={`w-24 h-24 rounded-lg transition-all duration-200 ${
+              className={`w-28 h-28 rounded-2xl transition-all duration-200 shadow-lg ${
                 selectedColor === null
-                  ? 'hover:scale-110 hover:shadow-lg cursor-pointer'
+                  ? 'hover:scale-110 hover:shadow-xl cursor-pointer'
                   : 'cursor-not-allowed'
               } ${getFeedbackClass(color)}`}
               style={{ backgroundColor: color }}

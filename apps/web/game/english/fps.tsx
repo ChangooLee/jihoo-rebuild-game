@@ -547,19 +547,21 @@ export function FPSGame({ items, onComplete }: FPSGameProps) {
 
   if (!gameStarted) {
     return (
-      <div className="fixed inset-0 bg-black/95 flex flex-col items-center justify-center z-50">
-        <h1 className="text-6xl font-bold mb-4 text-yellow-400">⚔️ WORD STRIKE FPS ⚔️</h1>
-        <div className="text-2xl mb-8 text-white">영어 단어 학습 3D 게임</div>
+      <div className="fixed inset-0 bg-background/95 flex flex-col items-center justify-center z-50">
+        <h1 className="text-6xl font-bold mb-4 text-primary">⚔️ WORD STRIKE FPS ⚔️</h1>
+        <div className="text-2xl mb-8 text-foreground">영어 단어 학습 3D 게임</div>
         <button
           onClick={handleStartGame}
-          className="px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-800 text-white text-xl rounded-full hover:scale-105 transition-transform"
+          className="px-12 py-6 bg-gradient-to-r from-primary to-accent text-primary-foreground text-xl rounded-2xl hover:scale-105 transition-transform shadow-lg"
         >
           🎮 게임 시작
         </button>
-        <div className="mt-8 text-center text-white max-w-2xl px-8">
-          <p className="mb-2"><strong>WASD</strong> 이동 | <strong>Space</strong> 점프</p>
-          <p className="mb-2"><strong>좌클릭</strong> 사격</p>
-          <p className="mb-2">정답 적을 처치하면 점수 획득, 오답 적을 처치하면 생명 감소</p>
+        <div className="mt-12 text-center text-foreground max-w-2xl px-8">
+          <div className="bg-card border border-border/50 rounded-2xl p-6">
+            <p className="mb-3 text-body-md"><strong className="text-primary">WASD</strong> 이동 | <strong className="text-primary">Space</strong> 점프</p>
+            <p className="mb-3 text-body-md"><strong className="text-primary">좌클릭</strong> 사격</p>
+            <p className="text-body-md">정답 적을 처치하면 점수 획득, 오답 적을 처치하면 생명 감소</p>
+          </div>
         </div>
       </div>
     );
@@ -567,12 +569,12 @@ export function FPSGame({ items, onComplete }: FPSGameProps) {
 
   if (gameOver) {
     return (
-      <div className="fixed inset-0 bg-black/95 flex flex-col items-center justify-center z-50">
-        <h1 className="text-6xl font-bold mb-4 text-red-400">🎮 GAME OVER</h1>
-        <div className="text-2xl mb-8 text-white">최종 점수: {score}</div>
+      <div className="fixed inset-0 bg-background/95 flex flex-col items-center justify-center z-50">
+        <h1 className="text-6xl font-bold mb-4 text-error">🎮 GAME OVER</h1>
+        <div className="text-2xl mb-8 text-foreground">최종 점수: <span className="text-primary font-bold">{score}</span></div>
         <button
           onClick={() => handleCompleteWithLog(results)}
-          className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-800 text-white text-xl rounded-full hover:scale-105 transition-transform"
+          className="px-12 py-6 bg-primary text-primary-foreground text-xl rounded-2xl hover:scale-105 transition-transform shadow-lg"
         >
           결과 확인
         </button>
@@ -585,15 +587,15 @@ export function FPSGame({ items, onComplete }: FPSGameProps) {
       <div ref={containerRef} className="w-full h-screen" />
       
       {/* HUD */}
-      <div className="absolute top-4 left-4 bg-black/80 text-white p-4 rounded-lg">
-        <div>점수: {score}</div>
-        <div>❤️ 생명: {lives}</div>
-        {combo > 0 && <div>🔥 COMBO x{combo}</div>}
+      <div className="absolute top-4 left-4 bg-card/90 border border-border/50 text-foreground p-6 rounded-2xl shadow-xl">
+        <div className="text-lg font-bold">점수: <span className="text-primary">{score}</span></div>
+        <div className="text-lg font-bold">❤️ 생명: <span className="text-error">{lives}</span></div>
+        {combo > 0 && <div className="text-lg font-bold">🔥 COMBO <span className="text-warning">x{combo}</span></div>}
       </div>
 
       {/* 목표 단어 */}
       {currentWord && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-yellow-400/95 text-gray-900 px-8 py-4 rounded-lg text-2xl font-bold">
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-warning/95 text-primary-foreground px-8 py-4 rounded-2xl text-2xl font-bold shadow-xl border-2 border-warning">
           <div className="text-base mb-1">🎯 목표 단어</div>
           <div>{currentWord.word}</div>
         </div>
@@ -602,9 +604,9 @@ export function FPSGame({ items, onComplete }: FPSGameProps) {
       {/* 크로스헤어 */}
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none z-50">
         <div className="w-8 h-8 relative">
-          <div className="absolute top-1/2 left-0 w-6 h-0.5 bg-white/90 transform -translate-y-1/2"></div>
-          <div className="absolute top-0 left-1/2 w-0.5 h-6 bg-white/90 transform -translate-x-1/2"></div>
-          <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-white rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute top-1/2 left-0 w-6 h-0.5 bg-primary/90 transform -translate-y-1/2"></div>
+          <div className="absolute top-0 left-1/2 w-0.5 h-6 bg-primary/90 transform -translate-x-1/2"></div>
+          <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-primary rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
         </div>
       </div>
     </div>

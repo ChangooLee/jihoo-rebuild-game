@@ -107,15 +107,23 @@ export function SpeakingGame({ items, onComplete }: SpeakingGameProps) {
 
   if (isComplete) {
     return (
-      <div className="text-center">
-        <p>완료!</p>
-        <p>정답률: {results.filter((r) => r.correct).length} / {results.length}</p>
+      <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background">
+        <div className="bg-card border border-border/50 rounded-2xl p-8 text-center">
+          <h2 className="text-headline-md text-foreground mb-4">완료! 🎉</h2>
+          <p className="text-body-md text-muted-foreground mb-2">
+            정답률: <span className="text-success font-bold text-xl">{results.filter((r) => r.correct).length}</span> / {results.length}
+          </p>
+        </div>
       </div>
     );
   }
 
   if (!currentItem) {
-    return <div>준비 중...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="text-foreground text-xl">준비 중...</div>
+      </div>
+    );
   }
 
   const promptText = currentItem.stem.type === 'text'
@@ -123,40 +131,48 @@ export function SpeakingGame({ items, onComplete }: SpeakingGameProps) {
     : '다음을 따라 말하세요';
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="mb-4">
-        <p>문제 {currentIndex + 1} / {items.length}</p>
-        <p className="text-sm text-gray-500">다음 문장을 따라 말하세요</p>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background">
+      <div className="mb-8 bg-card border border-border/50 rounded-2xl p-6 text-center">
+        <p className="text-body-md text-muted-foreground mb-2">
+          문제 <span className="text-foreground font-bold">{currentIndex + 1}</span> / {items.length}
+        </p>
+        <p className="text-label-sm text-muted-foreground">다음 문장을 따라 말하세요</p>
       </div>
 
-      <div className="mb-8 text-2xl font-bold text-center">
-        {promptText}
+      <div className="mb-8 bg-card border border-border/50 rounded-2xl p-8 text-center">
+        <div className="text-2xl font-bold text-foreground">
+          {promptText}
+        </div>
       </div>
 
       {transcript && (
-        <div className="mb-4 p-4 bg-gray-100 rounded-lg">
-          <p className="text-lg">인식된 내용: {transcript}</p>
+        <div className="mb-8 bg-primary/10 border border-primary/50 rounded-2xl p-6 max-w-2xl">
+          <p className="text-lg text-foreground">
+            <span className="text-muted-foreground">인식된 내용:</span> {transcript}
+          </p>
         </div>
       )}
 
-      <button
-        onClick={startListening}
-        disabled={isListening}
-        className={`px-8 py-4 rounded-lg font-bold text-lg ${
-          isListening
-            ? 'bg-red-500 text-white'
-            : 'bg-blue-500 text-white hover:bg-blue-600'
-        }`}
-      >
-        {isListening ? '🎤 듣는 중...' : '🎤 시작'}
-      </button>
+      <div className="flex gap-6">
+        <button
+          onClick={startListening}
+          disabled={isListening}
+          className={`min-h-[60px] px-12 py-5 rounded-2xl font-bold text-xl transition-all hover:scale-105 shadow-lg ${
+            isListening
+              ? 'bg-error text-white'
+              : 'bg-primary text-primary-foreground hover:bg-primary/90'
+          }`}
+        >
+          {isListening ? '🎤 듣는 중...' : '🎤 시작'}
+        </button>
 
-      <button
-        onClick={playExample}
-        className="mt-4 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-      >
-        🔊 다시 듣기
-      </button>
+        <button
+          onClick={playExample}
+          className="min-h-[60px] px-8 py-5 bg-card border-2 border-border/50 text-foreground rounded-2xl hover:border-primary/50 hover:bg-card/80 transition-all hover:scale-105"
+        >
+          🔊 다시 듣기
+        </button>
+      </div>
     </div>
   );
 }

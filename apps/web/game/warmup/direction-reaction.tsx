@@ -117,31 +117,35 @@ export function DirectionReactionGame({ onComplete, duration = 90 }: DirectionRe
   const DirectionIcon = currentDirection ? directionMap[currentDirection].icon : ArrowUp;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="mb-4 text-center">
-        <p className="text-lg font-semibold">남은 시간: {Math.floor(remainingTime / 60)}:{(remainingTime % 60).toString().padStart(2, '0')}</p>
-        <p className="text-sm text-gray-600">정답: {correct} / 오답: {incorrect}</p>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background">
+      <div className="mb-8 bg-card border border-border/50 rounded-2xl p-6 text-center">
+        <p className="text-lg font-semibold text-foreground mb-2">
+          남은 시간: {Math.floor(remainingTime / 60)}:{(remainingTime % 60).toString().padStart(2, '0')}
+        </p>
+        <p className="text-body-md text-muted-foreground">
+          정답: <span className="text-success font-bold">{correct}</span> / 오답: <span className="text-error font-bold">{incorrect}</span>
+        </p>
       </div>
 
-      <div className="mb-8 text-center">
-        <p className="text-sm text-gray-500 mb-6">화살표 방향에 맞는 키를 누르세요</p>
+      <div className="mb-12 text-center">
+        <p className="text-label-sm text-muted-foreground mb-6">화살표 방향에 맞는 키를 누르세요</p>
         {currentDirection && (
           <div className="relative">
             <div
               className={`text-9xl font-bold transition-all duration-200 ${
                 showFeedback === 'correct'
-                  ? 'text-green-500 scale-110'
+                  ? 'text-success scale-110'
                   : showFeedback === 'incorrect'
-                  ? 'text-red-500 scale-90'
-                  : 'text-blue-600'
+                  ? 'text-error scale-90'
+                  : 'text-primary'
               }`}
             >
               <DirectionIcon className="w-48 h-48 mx-auto" />
             </div>
             {showFeedback && (
               <div
-                className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold ${
-                  showFeedback === 'correct' ? 'text-green-500' : 'text-red-500'
+                className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl font-bold ${
+                  showFeedback === 'correct' ? 'text-success' : 'text-error'
                 }`}
               >
                 {showFeedback === 'correct' ? '✓' : '✗'}
@@ -151,13 +155,13 @@ export function DirectionReactionGame({ onComplete, duration = 90 }: DirectionRe
         )}
       </div>
 
-      <div className="mt-8 text-center">
-        <p className="text-sm text-gray-400 mb-2">키보드 화살표 키를 사용하세요</p>
-        <div className="flex gap-2 justify-center">
-          <kbd className="px-3 py-2 bg-gray-200 rounded text-sm">↑</kbd>
-          <kbd className="px-3 py-2 bg-gray-200 rounded text-sm">↓</kbd>
-          <kbd className="px-3 py-2 bg-gray-200 rounded text-sm">←</kbd>
-          <kbd className="px-3 py-2 bg-gray-200 rounded text-sm">→</kbd>
+      <div className="mt-8 bg-card border border-border/50 rounded-2xl p-6 text-center">
+        <p className="text-label-sm text-muted-foreground mb-4">키보드 화살표 키를 사용하세요</p>
+        <div className="flex gap-3 justify-center">
+          <kbd className="px-4 py-3 bg-muted text-foreground rounded-lg text-lg font-bold border border-border">↑</kbd>
+          <kbd className="px-4 py-3 bg-muted text-foreground rounded-lg text-lg font-bold border border-border">↓</kbd>
+          <kbd className="px-4 py-3 bg-muted text-foreground rounded-lg text-lg font-bold border border-border">←</kbd>
+          <kbd className="px-4 py-3 bg-muted text-foreground rounded-lg text-lg font-bold border border-border">→</kbd>
         </div>
       </div>
     </div>

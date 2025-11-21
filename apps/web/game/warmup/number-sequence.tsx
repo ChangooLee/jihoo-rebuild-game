@@ -129,43 +129,47 @@ export function NumberSequenceGame({ onComplete, duration = 90 }: NumberSequence
   const getFeedbackColor = (option: number) => {
     if (selectedAnswer === null) return '';
     const correctAnswer = sequence[0] + (sequence[1] - sequence[0]) * sequence.length;
-    if (option === correctAnswer) return 'bg-green-500';
-    if (option === selectedAnswer && option !== correctAnswer) return 'bg-red-500';
+    if (option === correctAnswer) return 'bg-success/20 border-success text-success';
+    if (option === selectedAnswer && option !== correctAnswer) return 'bg-error/20 border-error text-error';
     return '';
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="mb-4 text-center">
-        <p className="text-lg font-semibold">남은 시간: {Math.floor(remainingTime / 60)}:{(remainingTime % 60).toString().padStart(2, '0')}</p>
-        <p className="text-sm text-gray-600">정답: {correct} / 오답: {incorrect}</p>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background">
+      <div className="mb-8 bg-card border border-border/50 rounded-2xl p-6 text-center">
+        <p className="text-lg font-semibold text-foreground mb-2">
+          남은 시간: {Math.floor(remainingTime / 60)}:{(remainingTime % 60).toString().padStart(2, '0')}
+        </p>
+        <p className="text-body-md text-muted-foreground">
+          정답: <span className="text-success font-bold">{correct}</span> / 오답: <span className="text-error font-bold">{incorrect}</span>
+        </p>
       </div>
 
-      <div className="mb-8 text-center">
-        <p className="text-sm text-gray-500 mb-6">숫자 패턴을 보고 다음 숫자를 선택하세요</p>
+      <div className="mb-12 text-center">
+        <p className="text-label-sm text-muted-foreground mb-6">숫자 패턴을 보고 다음 숫자를 선택하세요</p>
         <div className="flex gap-4 justify-center items-center mb-6">
           {sequence.map((num, idx) => (
             <span
               key={idx}
-              className="text-5xl font-bold px-6 py-4 bg-blue-100 rounded-lg border-2 border-blue-300"
+              className="text-5xl font-bold px-6 py-4 bg-primary/20 text-primary rounded-2xl border-2 border-primary/50"
             >
               {num}
             </span>
           ))}
-          <span className="text-5xl font-bold text-gray-400">?</span>
+          <span className="text-5xl font-bold text-muted-foreground">?</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 max-w-md">
+      <div className="grid grid-cols-2 gap-6 max-w-md">
         {options.map((option, idx) => (
           <button
             key={idx}
             onClick={() => handleAnswer(option)}
             disabled={selectedAnswer !== null}
-            className={`px-8 py-6 text-3xl font-bold rounded-lg border-2 transition-all ${
+            className={`min-h-[80px] px-8 py-6 text-3xl font-bold rounded-2xl border-2 transition-all ${
               selectedAnswer === null
-                ? 'bg-white border-gray-300 hover:border-blue-500 hover:bg-blue-50'
-                : getFeedbackColor(option) || 'bg-gray-100 border-gray-200 opacity-50'
+                ? 'bg-card border-border/50 text-foreground hover:border-primary/50 hover:bg-card/80 hover:scale-105'
+                : getFeedbackColor(option) || 'bg-card/50 border-border/30 text-muted-foreground opacity-50'
             }`}
           >
             {option}

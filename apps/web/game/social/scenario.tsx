@@ -69,21 +69,35 @@ export function ScenarioGame({ items, onComplete }: ScenarioGameProps) {
 
   if (isComplete) {
     return (
-      <div className="text-center">
-        <p>완료!</p>
-        <p>정답률: {results.filter((r) => r.correct).length} / {results.length}</p>
+      <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background">
+        <div className="bg-card border border-border/50 rounded-2xl p-8 text-center">
+          <h2 className="text-headline-md text-foreground mb-4">완료! 🎉</h2>
+          <p className="text-body-md text-muted-foreground mb-2">
+            정답률: <span className="text-success font-bold text-xl">{results.filter((r) => r.correct).length}</span> / {results.length}
+          </p>
+        </div>
       </div>
     );
   }
 
-  if (!currentItem) return <div>준비 중...</div>;
+  if (!currentItem) return (
+    <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="text-foreground text-xl">준비 중...</div>
+    </div>
+  );
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <p>문제 {currentIndex + 1} / {items.length}</p>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background">
+      <div className="mb-8 bg-card border border-border/50 rounded-2xl p-6 text-center">
+        <p className="text-body-md text-muted-foreground">
+          문제 <span className="text-foreground font-bold">{currentIndex + 1}</span> / {items.length}
+        </p>
+      </div>
       
-      <div className="mb-8 text-xl max-w-2xl">
-        {currentItem.stem.type === 'text' ? currentItem.stem.payload : '시나리오를 읽고 올바른 선택을 하세요'}
+      <div className="mb-12 bg-card border border-border/50 rounded-2xl p-8 max-w-2xl">
+        <div className="text-xl text-foreground leading-relaxed">
+          {currentItem.stem.type === 'text' ? currentItem.stem.payload : '시나리오를 읽고 올바른 선택을 하세요'}
+        </div>
       </div>
 
       {currentItem.choices && (
@@ -91,10 +105,12 @@ export function ScenarioGame({ items, onComplete }: ScenarioGameProps) {
           {currentItem.choices.map((choice) => {
             const isSelected = selectedChoice === choice.id;
             const isCorrect = currentItem.answer.value === choice.id;
-            let bgColor = 'bg-gray-100 hover:bg-gray-200';
+            let buttonClass = 'bg-card border-2 border-border/50 text-foreground hover:border-primary/50 hover:bg-card/80';
 
             if (isSelected) {
-              bgColor = isCorrect ? 'bg-green-500 text-white' : 'bg-red-500 text-white';
+              buttonClass = isCorrect 
+                ? 'bg-success/20 border-2 border-success text-success' 
+                : 'bg-error/20 border-2 border-error text-error';
             }
 
             return (
@@ -102,7 +118,7 @@ export function ScenarioGame({ items, onComplete }: ScenarioGameProps) {
                 key={choice.id}
                 onClick={() => handleChoice(choice.id)}
                 disabled={!!selectedChoice}
-                className={`w-full p-6 rounded-lg text-left font-bold ${bgColor} transition-colors disabled:opacity-75`}
+                className={`w-full min-h-[80px] p-6 rounded-2xl text-left font-bold text-lg transition-all hover:scale-105 ${buttonClass} disabled:opacity-75`}
               >
                 {choice.label}
               </button>

@@ -95,43 +95,55 @@ export function ListeningGame({ items, onComplete }: ListeningGameProps) {
 
   if (isComplete) {
     return (
-      <div className="text-center">
-        <p>완료!</p>
-        <p>정답률: {results.filter((r) => r.correct).length} / {results.length}</p>
+      <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background">
+        <div className="bg-card border border-border/50 rounded-2xl p-8 text-center">
+          <h2 className="text-headline-md text-foreground mb-4">완료! 🎉</h2>
+          <p className="text-body-md text-muted-foreground mb-2">
+            정답률: <span className="text-success font-bold text-xl">{results.filter((r) => r.correct).length}</span> / {results.length}
+          </p>
+        </div>
       </div>
     );
   }
 
   if (!currentItem) {
-    return <div>준비 중...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="text-foreground text-xl">준비 중...</div>
+      </div>
+    );
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="mb-4">
-        <p>문제 {currentIndex + 1} / {items.length}</p>
-        <p className="text-sm text-gray-500">영어를 듣고 올바른 답을 선택하세요</p>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background">
+      <div className="mb-8 bg-card border border-border/50 rounded-2xl p-6 text-center">
+        <p className="text-body-md text-muted-foreground mb-2">
+          문제 <span className="text-foreground font-bold">{currentIndex + 1}</span> / {items.length}
+        </p>
+        <p className="text-label-sm text-muted-foreground">영어를 듣고 올바른 답을 선택하세요</p>
       </div>
 
-      <div className="mb-8">
+      <div className="mb-12">
         <button
           onClick={playAudio}
           disabled={isPlaying}
-          className="px-6 py-3 bg-blue-500 text-white rounded-lg font-bold hover:bg-blue-600 disabled:bg-gray-400"
+          className="min-h-[60px] px-12 py-5 bg-primary text-primary-foreground rounded-2xl font-bold text-xl hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground transition-all hover:scale-105 shadow-lg"
         >
-          {isPlaying ? '재생 중...' : '🔊 다시 듣기'}
+          {isPlaying ? '🔊 재생 중...' : '🔊 다시 듣기'}
         </button>
       </div>
 
       {currentItem.choices && (
-        <div className="grid grid-cols-2 gap-4 w-full max-w-md">
+        <div className="grid grid-cols-2 gap-6 w-full max-w-2xl">
           {currentItem.choices.map((choice) => {
             const isSelected = selectedChoice === choice.id;
             const isCorrect = currentItem.answer.value === choice.id;
-            let bgColor = 'bg-gray-100 hover:bg-gray-200';
+            let buttonClass = 'bg-card border-2 border-border/50 text-foreground hover:border-primary/50 hover:bg-card/80';
 
             if (isSelected) {
-              bgColor = isCorrect ? 'bg-green-500' : 'bg-red-500';
+              buttonClass = isCorrect 
+                ? 'bg-success/20 border-2 border-success text-success' 
+                : 'bg-error/20 border-2 border-error text-error';
             }
 
             return (
@@ -139,7 +151,7 @@ export function ListeningGame({ items, onComplete }: ListeningGameProps) {
                 key={choice.id}
                 onClick={() => handleChoice(choice.id)}
                 disabled={!!selectedChoice}
-                className={`p-6 rounded-lg font-bold text-lg ${bgColor} text-white transition-colors disabled:opacity-75`}
+                className={`min-h-[80px] p-6 rounded-2xl font-bold text-lg transition-all hover:scale-105 ${buttonClass} disabled:opacity-75`}
               >
                 {choice.label}
               </button>

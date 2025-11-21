@@ -101,34 +101,38 @@ export function StroopTask({ onComplete, duration = 90 }: StroopTaskProps) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="mb-4">
-        <p>남은 시간: {Math.floor(remainingTime / 60)}:{(remainingTime % 60).toString().padStart(2, '0')}</p>
-        <p>정답: {correct} / 오답: {incorrect}</p>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background">
+      <div className="mb-8 bg-card border border-border/50 rounded-2xl p-6 text-center">
+        <p className="text-lg font-semibold text-foreground mb-2">
+          남은 시간: {Math.floor(remainingTime / 60)}:{(remainingTime % 60).toString().padStart(2, '0')}
+        </p>
+        <p className="text-body-md text-muted-foreground">
+          정답: <span className="text-success font-bold">{correct}</span> / 오답: <span className="text-error font-bold">{incorrect}</span>
+        </p>
       </div>
 
-      <div className="mb-8">
-        <p className="text-sm text-gray-500 mb-4">단어의 의미와 색상이 일치하는지 판단하세요</p>
+      <div className="mb-12 text-center">
+        <p className="text-label-sm text-muted-foreground mb-6">단어의 의미와 색상이 일치하는지 판단하세요</p>
         <div
-          className="text-6xl font-bold"
+          className="text-8xl font-bold mb-4"
           style={{ color: color }}
         >
           {word}
         </div>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-6">
         <button
           onClick={() => handleResponse(true)}
-          className="px-8 py-4 bg-green-500 text-white rounded-lg font-bold text-lg hover:bg-green-600"
+          className="min-h-[60px] px-12 py-5 bg-success text-white rounded-2xl font-bold text-xl hover:bg-success/90 transition-all hover:scale-105 shadow-lg"
         >
-          일치
+          ⭕ 일치
         </button>
         <button
           onClick={() => handleResponse(false)}
-          className="px-8 py-4 bg-red-500 text-white rounded-lg font-bold text-lg hover:bg-red-600"
+          className="min-h-[60px] px-12 py-5 bg-error text-white rounded-2xl font-bold text-xl hover:bg-error/90 transition-all hover:scale-105 shadow-lg"
         >
-          불일치
+          ❌ 불일치
         </button>
       </div>
     </div>

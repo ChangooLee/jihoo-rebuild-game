@@ -110,15 +110,23 @@ export function SpeedCalculation({
 
   if (isComplete) {
     return (
-      <div className="text-center">
-        <p>완료!</p>
-        <p>정답률: {results.filter((r) => r.correct).length} / {results.length}</p>
+      <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background">
+        <div className="bg-card border border-border/50 rounded-2xl p-8 text-center">
+          <h2 className="text-headline-md text-foreground mb-4">완료! 🎉</h2>
+          <p className="text-body-md text-muted-foreground mb-2">
+            정답률: <span className="text-success font-bold text-xl">{results.filter((r) => r.correct).length}</span> / {results.length}
+          </p>
+        </div>
       </div>
     );
   }
 
   if (!currentItem) {
-    return <div>준비 중...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="text-foreground text-xl">준비 중...</div>
+      </div>
+    );
   }
 
   // 문제 텍스트 렌더링
@@ -127,17 +135,23 @@ export function SpeedCalculation({
     : '문제를 표시할 수 없습니다';
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="mb-4">
-        <p>남은 시간: {Math.floor(remainingTime / 60)}:{(remainingTime % 60).toString().padStart(2, '0')}</p>
-        <p>문제 {currentIndex + 1} / {items.length}</p>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background">
+      <div className="mb-8 bg-card border border-border/50 rounded-2xl p-6 text-center">
+        <p className="text-lg font-semibold text-foreground mb-2">
+          남은 시간: {Math.floor(remainingTime / 60)}:{(remainingTime % 60).toString().padStart(2, '0')}
+        </p>
+        <p className="text-body-md text-muted-foreground">
+          문제 {currentIndex + 1} / {items.length}
+        </p>
       </div>
 
-      <div className="text-4xl font-bold mb-8">
-        <MathRenderer content={problemText} />
+      <div className="mb-12 bg-card border border-border/50 rounded-2xl p-8 text-center">
+        <div className="text-4xl font-bold text-foreground">
+          <MathRenderer content={problemText} />
+        </div>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-8 w-full max-w-md">
         <input
           type="text"
           value={userAnswer}
@@ -148,15 +162,16 @@ export function SpeedCalculation({
             }
           }}
           autoFocus
-          className="text-2xl p-4 border-2 border-gray-300 rounded-lg text-center"
+          className="w-full text-2xl p-6 border-2 border-border bg-card text-foreground rounded-2xl text-center focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          placeholder="답을 입력하세요"
         />
       </div>
 
       <button
         onClick={handleAnswer}
-        className="px-8 py-4 bg-blue-500 text-white rounded-lg text-lg font-bold hover:bg-blue-600"
+        className="min-h-[60px] px-12 py-5 bg-primary text-primary-foreground rounded-2xl text-xl font-bold hover:bg-primary/90 transition-all hover:scale-105 shadow-lg"
       >
-        제출
+        제출 ✓
       </button>
     </div>
   );
