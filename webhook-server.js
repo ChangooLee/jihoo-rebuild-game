@@ -145,7 +145,7 @@ const server = http.createServer((req, res) => {
   }
 });
 
-const WEBHOOK_HOST = '125.124.176.68';
+const WEBHOOK_HOST = '125.240.175.68';
 
 server.listen(PORT, '0.0.0.0', () => {
   log(`🚀 웹훅 서버 시작: http://0.0.0.0:${PORT}`);
