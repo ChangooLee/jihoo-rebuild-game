@@ -400,7 +400,7 @@ export function FPSGame({ items, onComplete }: FPSGameProps) {
 
       raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
       
-      const shootables: THREE.Object3D[] = [];
+      const shootables: any[] = []; // THREE.Object3D[]
       enemies.forEach(e => {
         shootables.push(e.head, e.body);
       });
