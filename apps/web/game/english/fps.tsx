@@ -114,11 +114,11 @@ export function FPSGame({ items, onComplete }: FPSGameProps) {
       isCorrect: boolean;
       health: number;
       maxHealth: number;
-      group: THREE.Group;
-      body: THREE.Mesh;
-      head: THREE.Mesh;
-      sprite: THREE.Sprite;
-      healthBar: THREE.Sprite;
+      group: any; // THREE.Group
+      body: any; // THREE.Mesh
+      head: any; // THREE.Mesh
+      sprite: any; // THREE.Sprite
+      healthBar: any; // THREE.Sprite
       speed: number;
       hit: boolean;
       counted: boolean;
