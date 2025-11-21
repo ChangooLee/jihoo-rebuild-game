@@ -213,3 +213,31 @@
 .skip-link {
   @apply sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-6 focus:py-3 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:shadow-xl;
 }
+
+/* KaTeX 수식 스타일 개선 */
+@layer components {
+  .katex {
+    font-size: 1.2em !important;
+  }
+  
+  .katex-display {
+    margin: 1em 0 !important;
+  }
+  
+  /* 다크 모드에서 수식 가독성 개선 */
+  .katex .base {
+    color: hsl(var(--foreground)) !important;
+  }
+  
+  .katex .mord {
+    color: hsl(var(--foreground)) !important;
+  }
+  
+  /* 수식 배경 및 패딩 */
+  .katex-display > .katex {
+    padding: 0.5em;
+    background-color: hsl(var(--card));
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border));
+  }
+}

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { DiagnosticEngine, type DiagnosticResult } from '@/modules/diagnostic/engine';
 import type { LearningItem, Subject } from '@/lib/types';
 import { db } from '@/lib/db';
+import { MathRenderer } from '@/components/MathRenderer';
 
 const SUBJECTS: Subject[] = ['math', 'english', 'science', 'social'];
 
@@ -194,7 +195,11 @@ export default function DiagnosticPage() {
 
         <div className="mb-8">
           <div className="text-xl font-bold mb-4">
-            {currentItem.stem.type === 'text' ? currentItem.stem.payload : '문제를 표시할 수 없습니다'}
+            {currentItem.stem.type === 'text' ? (
+              <MathRenderer content={currentItem.stem.payload} />
+            ) : (
+              '문제를 표시할 수 없습니다'
+            )}
           </div>
         </div>
 
@@ -210,7 +215,7 @@ export default function DiagnosticPage() {
                     : 'bg-gray-100 hover:bg-gray-200'
                 }`}
               >
-                {choice.label}
+                <MathRenderer content={choice.label} />
               </button>
             ))}
           </div>

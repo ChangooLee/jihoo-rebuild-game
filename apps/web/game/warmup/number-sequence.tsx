@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { db } from '@/lib/db';
 
 export interface NumberSequenceResult {
   correct: number;
@@ -27,12 +28,32 @@ export function NumberSequenceGame({ onComplete, duration = 90 }: NumberSequence
   const [startTime, setStartTime] = useState<number | null>(null);
   const [remainingTime, setRemainingTime] = useState(duration);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const gameStartTimeRef = useRef<number | null>(null);
+  
+  // Initialize game start time
+  useEffect(() => {
+    if (!gameStartTimeRef.current) {
+      gameStartTimeRef.current = Date.now();
+    }
+  }, []);
 
   useEffect(() => {
     if (remainingTime <= 0) {
       const avgReactionTime = reactionTimes.length > 0
         ? reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length
         : 0;
+      // 게임 실행 시간 기록
+      if (gameStartTimeRef.current) {
+        const durationSec = Math.floor((Date.now() - gameStartTimeRef.current) / 1000);
+        db.gameLogs.add({
+          gameType: 'number-sequence',
+          subject: 'warmup',
+          startTime: gameStartTimeRef.current,
+          durationSec,
+          result: { correct, incorrect, avgReactionTime },
+          completed: true,
+        });
+      }
       onComplete({ correct, incorrect, avgReactionTime });
       return;
     }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { SessionFlowManager } from '@/modules/focus/session-flow';
 import { BoxBreathing } from '@/modules/focus/break';
@@ -40,6 +40,8 @@ export default function SessionPage() {
   const [subjectTimes, setSubjectTimes] = useState({ math: 0, english: 0, science: 0, social: 0 });
   const [showResult, setShowResult] = useState(false);
   const [selectedWarmupGame, setSelectedWarmupGame] = useState<WarmupGame | null>(null);
+  const [selectedEnglishGame, setSelectedEnglishGame] = useState<'listening' | 'speaking' | 'fps' | null>(null);
+  const [roundStartTimes, setRoundStartTimes] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
     // 워밍업 게임 랜덤 선택 (컴포넌트 마운트 시 한 번만)
@@ -59,63 +61,79 @@ export default function SessionPage() {
     
     initializeScheduler();
 
-    // 페이즈 변경 콜백 등록
-    sessionFlow.onPhaseChangeCallback(async (phase) => {
-      console.log('Phase changed to:', phase);
-      setCurrentPhase(phase);
-      await handlePhaseChange(phase);
-    });
-
     sessionFlow.onCompleteCallback((state) => {
       saveSession(state);
       window.location.href = '/dashboard';
     });
 
-    // 세션 시작
-    sessionFlow.start();
+    // 페이즈 변경 콜백은 handlePhaseChange가 정의된 후 별도 useEffect에서 등록
+    // 세션 시작은 콜백 등록 후에 수행
+
+    // 시간 업데이트 (100ms마다)
+    const timeInterval = setInterval(() => {
+      const state = sessionFlow.getState();
+      setTotalElapsed(state.elapsedSeconds);
+      setPhaseElapsed(sessionFlow.getPhaseElapsed());
+    }, 100);
 
     return () => {
-      // Cleanup
+      clearInterval(timeInterval);
     };
-  }, []);
+  }, [sessionFlow]);
 
-  const handlePhaseChange = async (phase: SessionPhase) => {
-    // scheduler가 아직 준비되지 않았으면 대기
+  const handlePhaseChange = useCallback(async (phase: SessionPhase) => {
+    // 페이즈 전환은 즉시 수행
+    setCurrentPhase(phase);
+    
+    // 과목별 시간 추적
+    if (phase === 'round-a') {
+      setRoundStartTimes(prev => ({ ...prev, math: Date.now() }));
+    } else if (phase === 'round-b') {
+      setRoundStartTimes(prev => ({ ...prev, english: Date.now() }));
+    } else if (phase === 'round-c') {
+      // 과학 또는 사회 중 하나
+      const profile = await db.userProfile.get('default');
+      const schedulerInstance = scheduler || new PersonalizedScheduler({
+        gradeBand: profile?.gradeBand,
+        weakTags: profile?.weakTags,
+        firstSessionDate: profile?.firstSessionDate,
+      });
+      const items = await schedulerInstance.selectItemsForRound(10);
+      const subject = items[0]?.subject || 'science';
+      setRoundStartTimes(prev => ({ ...prev, [subject]: Date.now() }));
+    }
+
+    // scheduler가 아직 준비되지 않았으면 초기화
     if (!scheduler) {
-      // scheduler 준비 대기
-      const checkScheduler = async () => {
+      const profile = await db.userProfile.get('default');
+      const schedulerInstance = new PersonalizedScheduler({
+        gradeBand: profile?.gradeBand,
+        weakTags: profile?.weakTags,
+        firstSessionDate: profile?.firstSessionDate,
+      });
+      setScheduler(schedulerInstance);
+    }
+    
+    // 영어 게임 선택 (round-b 페이즈일 때만)
+    if (phase === 'round-b' && !selectedEnglishGame) {
+      const englishGames: ('listening' | 'speaking' | 'fps')[] = ['listening', 'speaking', 'fps'];
+      const randomGame = englishGames[Math.floor(Math.random() * englishGames.length)];
+      setSelectedEnglishGame(randomGame);
+    }
+    
+    // 항목 선택 (비동기로 처리)
+    if (phase === 'round-a' || phase === 'round-b' || phase === 'round-c') {
+      const currentScheduler = scheduler || await (async () => {
         const profile = await db.userProfile.get('default');
-        const schedulerInstance = new PersonalizedScheduler({
+        return new PersonalizedScheduler({
           gradeBand: profile?.gradeBand,
           weakTags: profile?.weakTags,
           firstSessionDate: profile?.firstSessionDate,
         });
-        setScheduler(schedulerInstance);
-        
-        // scheduler 준비 후 다시 처리
-        if (phase === 'round-a' || phase === 'round-b' || phase === 'round-c') {
-          const items = await schedulerInstance.selectItemsForRound(10);
-          setRoundItems(items);
-        } else if (phase === 'recall-boss') {
-          const items = await recallBoss.selectRecallItems(
-            incorrectItems,
-            profile?.weakTags || [],
-            10
-          );
-          setRoundItems(items);
-        }
-      };
-      
-      await checkScheduler();
-      return;
-    }
-    
-    if (phase === 'round-a' || phase === 'round-b' || phase === 'round-c') {
-      // 라운드 항목 선택
-      const items = await scheduler.selectItemsForRound(10);
+      })();
+      const items = await currentScheduler.selectItemsForRound(10);
       setRoundItems(items);
     } else if (phase === 'recall-boss') {
-      // 리콜 보스 항목 선택
       const profile = await db.userProfile.get('default');
       const items = await recallBoss.selectRecallItems(
         incorrectItems,
@@ -124,7 +142,23 @@ export default function SessionPage() {
       );
       setRoundItems(items);
     }
-  };
+  }, [scheduler, incorrectItems, selectedEnglishGame]);
+
+  // 페이즈 변경 콜백 등록 및 세션 시작
+  useEffect(() => {
+    if (!sessionFlow) return;
+    
+    sessionFlow.onPhaseChangeCallback(async (phase) => {
+      console.log('Phase changed to:', phase);
+      setCurrentPhase(phase);
+      await handlePhaseChange(phase);
+    });
+    
+    // 콜백 등록 후 세션 시작
+    if (sessionFlow.getState().elapsedSeconds === 0) {
+      sessionFlow.start();
+    }
+  }, [sessionFlow, handlePhaseChange]);
 
   const handleWarmupComplete = async (result: any) => {
     setWarmupResult(result);
@@ -166,9 +200,19 @@ export default function SessionPage() {
       }
     }
 
+    // 과목별 시간 업데이트
+    const subject = roundItems[0]?.subject || 'math';
+    if (roundStartTimes[subject]) {
+      const durationSec = Math.floor((Date.now() - roundStartTimes[subject]) / 1000);
+      setSubjectTimes((prev) => ({
+        ...prev,
+        [subject]: prev[subject] + durationSec,
+      }));
+    }
+
     // 라운드 결과 저장
     const roundResult: RoundResult = {
-      subject: roundItems[0]?.subject || 'math',
+      subject,
       items: results.map((r) => r.itemId),
       correct,
       latencyAvgMs: avgLatency,
@@ -299,16 +343,13 @@ export default function SessionPage() {
         )}
 
         {currentPhase === 'round-b' && (
-          roundItems.filter(item => item.subject === 'english').length > 0 ? (
+          roundItems.filter(item => item.subject === 'english').length > 0 && selectedEnglishGame ? (
             (() => {
-              // 영어 게임 랜덤 선택 (ListeningGame, SpeakingGame, FPSGame)
-              const englishGames = ['listening', 'speaking', 'fps'];
-              const randomGame = englishGames[Math.floor(Math.random() * englishGames.length)];
               const englishItems = roundItems.filter(item => item.subject === 'english');
               
-              if (randomGame === 'listening') {
+              if (selectedEnglishGame === 'listening') {
                 return <ListeningGame items={englishItems} onComplete={handleRoundComplete} />;
-              } else if (randomGame === 'speaking') {
+              } else if (selectedEnglishGame === 'speaking') {
                 return <SpeakingGame items={englishItems} onComplete={handleRoundComplete} />;
               } else {
                 return <FPSGame items={englishItems} onComplete={handleRoundComplete} />;

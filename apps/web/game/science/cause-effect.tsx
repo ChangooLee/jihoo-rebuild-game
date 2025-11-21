@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { LearningItem } from '@/lib/types';
+import { db } from '@/lib/db';
 
 export interface CauseEffectProps {
   items: LearningItem[];
@@ -17,11 +18,17 @@ export function CauseEffect({ items, onComplete }: CauseEffectProps) {
   const [selectedEffect, setSelectedEffect] = useState<string | null>(null);
   const [results, setResults] = useState<{ itemId: string; correct: boolean; latencyMs: number }[]>([]);
   const [startTime, setStartTime] = useState<number>(Date.now());
+  const gameStartTimeRef = useRef<number | null>(null);
+  
+  // Initialize game start time
+  if (!gameStartTimeRef.current) {
+    gameStartTimeRef.current = Date.now();
+  }
 
   const currentItem = items[currentIndex];
   const isComplete = currentIndex >= items.length;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedCause || !selectedEffect || !currentItem) return;
 
     const latencyMs = Date.now() - startTime;
@@ -39,6 +46,22 @@ export function CauseEffect({ items, onComplete }: CauseEffectProps) {
       setSelectedEffect(null);
       setStartTime(Date.now());
     } else {
+      // 게임 실행 시간 기록
+      if (gameStartTimeRef.current) {
+        const durationSec = Math.floor((Date.now() - gameStartTimeRef.current) / 1000);
+        await db.gameLogs.add({
+          gameType: 'cause-effect',
+          subject: 'science',
+          startTime: gameStartTimeRef.current,
+          durationSec,
+          result: {
+            totalItems: items.length,
+            correct: results.filter((r) => r.correct).length,
+            incorrect: results.filter((r) => !r.correct).length,
+          },
+          completed: true,
+        });
+      }
       onComplete(results);
     }
   };

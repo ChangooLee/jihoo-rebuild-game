@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
+import { db } from '@/lib/db';
 
 export interface DirectionReactionResult {
   correct: number;
@@ -29,6 +30,14 @@ export function DirectionReactionGame({ onComplete, duration = 90 }: DirectionRe
   const [startTime, setStartTime] = useState<number | null>(null);
   const [remainingTime, setRemainingTime] = useState(duration);
   const [showFeedback, setShowFeedback] = useState<'correct' | 'incorrect' | null>(null);
+  const gameStartTimeRef = useRef<number | null>(null);
+  
+  // Initialize game start time
+  useEffect(() => {
+    if (!gameStartTimeRef.current) {
+      gameStartTimeRef.current = Date.now();
+    }
+  }, []);
 
   const directions: Direction[] = ['up', 'down', 'left', 'right'];
   const directionMap: Record<Direction, { key: string; icon: typeof ArrowUp; label: string }> = {
@@ -43,6 +52,18 @@ export function DirectionReactionGame({ onComplete, duration = 90 }: DirectionRe
       const avgReactionTime = reactionTimes.length > 0
         ? reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length
         : 0;
+      // 게임 실행 시간 기록
+      if (gameStartTimeRef.current) {
+        const durationSec = Math.floor((Date.now() - gameStartTimeRef.current) / 1000);
+        db.gameLogs.add({
+          gameType: 'direction-reaction',
+          subject: 'warmup',
+          startTime: gameStartTimeRef.current,
+          durationSec,
+          result: { correct, incorrect, avgReactionTime },
+          completed: true,
+        });
+      }
       onComplete({ correct, incorrect, avgReactionTime });
       return;
     }

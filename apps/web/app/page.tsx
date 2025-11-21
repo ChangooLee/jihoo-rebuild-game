@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { QuestCTA } from '@/components/ui/QuestCTA';
-import { Zap, Target, Brain, GraduationCap } from 'lucide-react';
+import { GameCard } from '@/components/GameCard';
+import { Zap, Target, Brain, GraduationCap, Calculator, BookOpen, FlaskConical, Globe, Activity } from 'lucide-react';
 
 type GradeBand = 'ES' | 'MS';
 
@@ -17,6 +18,10 @@ export default function HomePage() {
 
   const handleDiagnostic = () => {
     window.location.href = '/jihoo/diagnostic';
+  };
+
+  const handleGameClick = (subject: string, gameType: string) => {
+    window.location.href = `/jihoo/games/${subject}/${gameType}`;
   };
 
   return (
@@ -158,6 +163,146 @@ export default function HomePage() {
                   실수를 성장의 기회로 전환합니다.
                 </p>
               </article>
+            </div>
+          </section>
+
+          {/* 즉시 플레이 게임 섹션 */}
+          <section className="max-w-6xl mx-auto mb-20" aria-labelledby="games-heading">
+            <h2 id="games-heading" className="text-headline-md mb-6 text-center">
+              즉시 플레이 게임
+            </h2>
+            <p className="text-body-md text-muted-foreground mb-8 text-center">
+              과목별 게임을 개별적으로 플레이하거나 퀘스트로 이어서 진행하세요
+            </p>
+
+            {/* 수학 게임 */}
+            <div className="mb-12">
+              <h3 className="text-title-md font-semibold mb-4 flex items-center gap-2">
+                <Calculator className="w-5 h-5 text-blue-500" />
+                수학
+              </h3>
+              <div className="grid md:grid-cols-1 gap-4">
+                <GameCard
+                  title="스피드 연산"
+                  description="빠른 계산 연습"
+                  subject="math"
+                  gameType="speed-calculation"
+                  icon={<Calculator className="w-6 h-6" />}
+                  onClick={() => handleGameClick('math', 'speed-calculation')}
+                />
+              </div>
+            </div>
+
+            {/* 영어 게임 */}
+            <div className="mb-12">
+              <h3 className="text-title-md font-semibold mb-4 flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-purple-500" />
+                영어
+              </h3>
+              <div className="grid md:grid-cols-3 gap-4">
+                <GameCard
+                  title="듣기 게임"
+                  description="영어 듣기 연습"
+                  subject="english"
+                  gameType="listening"
+                  icon={<BookOpen className="w-6 h-6" />}
+                  onClick={() => handleGameClick('english', 'listening')}
+                />
+                <GameCard
+                  title="말하기 게임"
+                  description="영어 발음 연습"
+                  subject="english"
+                  gameType="speaking"
+                  icon={<BookOpen className="w-6 h-6" />}
+                  onClick={() => handleGameClick('english', 'speaking')}
+                />
+                <GameCard
+                  title="단어 FPS"
+                  description="3D FPS로 단어 학습"
+                  subject="english"
+                  gameType="fps"
+                  icon={<BookOpen className="w-6 h-6" />}
+                  onClick={() => handleGameClick('english', 'fps')}
+                />
+              </div>
+            </div>
+
+            {/* 과학 게임 */}
+            <div className="mb-12">
+              <h3 className="text-title-md font-semibold mb-4 flex items-center gap-2">
+                <FlaskConical className="w-5 h-5 text-green-500" />
+                과학
+              </h3>
+              <div className="grid md:grid-cols-1 gap-4">
+                <GameCard
+                  title="원인-결과 연결"
+                  description="과학 원인과 결과 매칭"
+                  subject="science"
+                  gameType="cause-effect"
+                  icon={<FlaskConical className="w-6 h-6" />}
+                  onClick={() => handleGameClick('science', 'cause-effect')}
+                />
+              </div>
+            </div>
+
+            {/* 사회 게임 */}
+            <div className="mb-12">
+              <h3 className="text-title-md font-semibold mb-4 flex items-center gap-2">
+                <Globe className="w-5 h-5 text-orange-500" />
+                사회
+              </h3>
+              <div className="grid md:grid-cols-1 gap-4">
+                <GameCard
+                  title="시나리오 게임"
+                  description="사회 상황 판단"
+                  subject="social"
+                  gameType="scenario"
+                  icon={<Globe className="w-6 h-6" />}
+                  onClick={() => handleGameClick('social', 'scenario')}
+                />
+              </div>
+            </div>
+
+            {/* 워밍업 게임 */}
+            <div className="mb-12">
+              <h3 className="text-title-md font-semibold mb-4 flex items-center gap-2">
+                <Activity className="w-5 h-5 text-yellow-500" />
+                워밍업
+              </h3>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <GameCard
+                  title="Stroop 테스트"
+                  description="색상과 단어 매칭"
+                  subject="warmup"
+                  gameType="stroop"
+                  icon={<Activity className="w-6 h-6" />}
+                  onClick={() => handleGameClick('warmup', 'stroop')}
+                />
+                <GameCard
+                  title="숫자 순서"
+                  description="패턴 인식 게임"
+                  subject="warmup"
+                  gameType="number-sequence"
+                  icon={<Activity className="w-6 h-6" />}
+                  onClick={() => handleGameClick('warmup', 'number-sequence')}
+                />
+                <GameCard
+                  title="방향 반응"
+                  description="반응 속도 게임"
+                  subject="warmup"
+                  gameType="direction-reaction"
+                  icon={<Activity className="w-6 h-6" />}
+                  onClick={() => handleGameClick('warmup', 'direction-reaction')}
+                />
+                <GameCard
+                  title="색상 매칭"
+                  description="색상 찾기 게임"
+                  subject="warmup"
+                  gameType="color-match"
+                  icon={<Activity className="w-6 h-6" />}
+                  onClick={() => handleGameClick('warmup', 'color-match')}
+                />
+              </div>
             </div>
           </section>
 

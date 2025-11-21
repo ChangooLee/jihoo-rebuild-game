@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { LearningItem } from '@/lib/types';
 import { ttsManager } from '@/modules/audio/tts';
+import { db } from '@/lib/db';
 
 export interface ListeningGameProps {
   items: LearningItem[];
@@ -18,13 +19,18 @@ export function ListeningGame({ items, onComplete }: ListeningGameProps) {
   const [results, setResults] = useState<{ itemId: string; correct: boolean; latencyMs: number }[]>([]);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const gameStartTimeRef = useRef<number | null>(null);
 
   const currentItem = items[currentIndex];
   const isComplete = currentIndex >= items.length;
 
   useEffect(() => {
     if (currentIndex < items.length && !startTime) {
-      setStartTime(Date.now());
+      const now = Date.now();
+      setStartTime(now);
+      if (!gameStartTimeRef.current) {
+        gameStartTimeRef.current = now;
+      }
       playAudio();
     }
   }, [currentIndex]);
@@ -60,12 +66,28 @@ export function ListeningGame({ items, onComplete }: ListeningGameProps) {
     setSelectedChoice(choiceId);
 
     // 1초 후 다음 문제로
-    setTimeout(() => {
+    setTimeout(async () => {
       if (currentIndex + 1 < items.length) {
         setCurrentIndex((prev) => prev + 1);
         setSelectedChoice(null);
         setStartTime(null);
       } else {
+        // 게임 실행 시간 기록
+        if (gameStartTimeRef.current) {
+          const durationSec = Math.floor((Date.now() - gameStartTimeRef.current) / 1000);
+          await db.gameLogs.add({
+            gameType: 'listening',
+            subject: 'english',
+            startTime: gameStartTimeRef.current,
+            durationSec,
+            result: {
+              totalItems: items.length,
+              correct: results.filter((r) => r.correct).length,
+              incorrect: results.filter((r) => !r.correct).length,
+            },
+            completed: true,
+          });
+        }
         onComplete(results);
       }
     }, 1000);

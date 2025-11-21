@@ -88,3 +88,14 @@ export interface SessionState {
   roundResults: RoundResult[];
   incorrectItems: string[]; // 오늘 틀린 항목 ID들
 }
+
+// 게임 실행 로그
+export interface GameLog {
+  id?: number;
+  gameType: string; // 'speed-calculation', 'fps', 'stroop', 'number-sequence', 'direction-reaction', 'color-match', 'listening', 'speaking', 'cause-effect', 'scenario'
+  subject: Subject | 'warmup';
+  startTime: number; // timestamp
+  durationSec: number;
+  result?: any; // 결과 데이터 (JSON)
+  completed: boolean;
+}

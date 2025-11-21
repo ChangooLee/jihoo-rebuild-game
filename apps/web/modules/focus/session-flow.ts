@@ -27,6 +27,7 @@ export class SessionFlowManager {
   private onPhaseChange?: (phase: SessionPhase) => void;
   private onComplete?: (state: SessionState) => void;
   private intervalId: NodeJS.Timeout | null = null;
+  private phaseStartTime: number = 0; // 현재 페이즈 시작 시간 (초)
 
   constructor() {
     this.state = {
@@ -44,6 +45,7 @@ export class SessionFlowManager {
   start() {
     this.state.startTime = Date.now();
     this.state.elapsedSeconds = 0;
+    this.phaseStartTime = 0;
     this.runPhase();
   }
 
@@ -82,6 +84,8 @@ export class SessionFlowManager {
     const currentIndex = PHASE_ORDER.indexOf(this.state.phase);
     
     if (currentIndex < PHASE_ORDER.length - 1) {
+      // 현재 페이즈 시작 시간 업데이트
+      this.phaseStartTime = this.state.elapsedSeconds;
       this.state.phase = PHASE_ORDER[currentIndex + 1];
       this.runPhase();
     } else {
@@ -135,24 +139,24 @@ export class SessionFlowManager {
   }
 
   /**
-   * 페이즈 시작 시간 계산
+   * 페이즈 시작 시간 반환 (초 단위)
    */
-  private getPhaseStartTime(): number {
-    const currentIndex = PHASE_ORDER.indexOf(this.state.phase);
-    let startTime = 0;
-    
-    for (let i = 0; i < currentIndex; i++) {
-      startTime += PHASE_DURATIONS[PHASE_ORDER[i]];
-    }
-    
-    return startTime;
+  getPhaseStartTime(): number {
+    return this.phaseStartTime;
+  }
+
+  /**
+   * 현재 페이즈 경과 시간 반환 (초 단위)
+   */
+  getPhaseElapsed(): number {
+    return this.state.elapsedSeconds - this.phaseStartTime;
   }
 
   /**
    * 현재 페이즈 남은 시간
    */
   getRemainingTime(): number {
-    const phaseElapsed = this.state.elapsedSeconds - this.getPhaseStartTime();
+    const phaseElapsed = this.getPhaseElapsed();
     const duration = PHASE_DURATIONS[this.state.phase];
     return Math.max(0, duration - phaseElapsed);
   }

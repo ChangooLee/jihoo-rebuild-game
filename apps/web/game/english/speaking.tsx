@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { LearningItem } from '@/lib/types';
 import { ttsManager } from '@/modules/audio/tts';
 import { sttManager } from '@/modules/audio/stt';
+import { db } from '@/lib/db';
 
 export interface SpeakingGameProps {
   items: LearningItem[];
@@ -19,13 +20,18 @@ export function SpeakingGame({ items, onComplete }: SpeakingGameProps) {
   const [transcript, setTranscript] = useState('');
   const [results, setResults] = useState<{ itemId: string; correct: boolean; latencyMs: number }[]>([]);
   const [startTime, setStartTime] = useState<number | null>(null);
+  const gameStartTimeRef = useRef<number | null>(null);
 
   const currentItem = items[currentIndex];
   const isComplete = currentIndex >= items.length;
 
   useEffect(() => {
     if (currentIndex < items.length && !startTime) {
-      setStartTime(Date.now());
+      const now = Date.now();
+      setStartTime(now);
+      if (!gameStartTimeRef.current) {
+        gameStartTimeRef.current = now;
+      }
       playExample();
     }
   }, [currentIndex]);
@@ -66,12 +72,28 @@ export function SpeakingGame({ items, onComplete }: SpeakingGameProps) {
         ]);
 
         // 다음 문제로
-        setTimeout(() => {
+        setTimeout(async () => {
           if (currentIndex + 1 < items.length) {
             setCurrentIndex((prev) => prev + 1);
             setTranscript('');
             setStartTime(null);
           } else {
+            // 게임 실행 시간 기록
+            if (gameStartTimeRef.current) {
+              const durationSec = Math.floor((Date.now() - gameStartTimeRef.current) / 1000);
+              await db.gameLogs.add({
+                gameType: 'speaking',
+                subject: 'english',
+                startTime: gameStartTimeRef.current,
+                durationSec,
+                result: {
+                  totalItems: items.length,
+                  correct: results.filter((r) => r.correct).length,
+                  incorrect: results.filter((r) => !r.correct).length,
+                },
+                completed: true,
+              });
+            }
             onComplete(results);
           }
         }, 2000);

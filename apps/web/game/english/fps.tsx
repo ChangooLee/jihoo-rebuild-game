@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { LearningItem } from '@/lib/types';
+import { db } from '@/lib/db';
 
 export interface FPSGameProps {
   items: LearningItem[];
@@ -22,6 +23,7 @@ export function FPSGame({ items, onComplete }: FPSGameProps) {
   const [currentWord, setCurrentWord] = useState<{ word: string; meaning: string; wrong: string[] } | null>(null);
   const [results, setResults] = useState<{ itemId: string; correct: boolean; latencyMs: number }[]>([]);
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
+  const gameStartTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!gameStarted || !containerRef.current) return;
@@ -438,7 +440,7 @@ export function FPSGame({ items, onComplete }: FPSGameProps) {
                   spawnEnemies();
                 } else {
                   // 완료
-                  onComplete(updated);
+                  handleCompleteWithLog(updated);
                   setGameOver(true);
                 }
               }, 1000);
@@ -465,7 +467,7 @@ export function FPSGame({ items, onComplete }: FPSGameProps) {
               if (newLives <= 0) {
                 setTimeout(() => {
                   setResults(current => {
-                    onComplete(current);
+                    handleCompleteWithLog(current);
                     return current;
                   });
                   setGameOver(true);
@@ -516,13 +518,40 @@ export function FPSGame({ items, onComplete }: FPSGameProps) {
     };
   };
 
+  const handleStartGame = () => {
+    setGameStarted(true);
+    gameStartTimeRef.current = Date.now();
+  };
+
+  const handleCompleteWithLog = async (finalResults: { itemId: string; correct: boolean; latencyMs: number }[]) => {
+    // 게임 실행 시간 기록
+    if (gameStartTimeRef.current) {
+      const durationSec = Math.floor((Date.now() - gameStartTimeRef.current) / 1000);
+      await db.gameLogs.add({
+        gameType: 'fps',
+        subject: 'english',
+        startTime: gameStartTimeRef.current,
+        durationSec,
+        result: {
+          score,
+          totalItems: items.length,
+          correct: finalResults.filter((r) => r.correct).length,
+          incorrect: finalResults.filter((r) => !r.correct).length,
+          combo: combo,
+        },
+        completed: true,
+      });
+    }
+    onComplete(finalResults);
+  };
+
   if (!gameStarted) {
     return (
       <div className="fixed inset-0 bg-black/95 flex flex-col items-center justify-center z-50">
         <h1 className="text-6xl font-bold mb-4 text-yellow-400">⚔️ WORD STRIKE FPS ⚔️</h1>
         <div className="text-2xl mb-8 text-white">영어 단어 학습 3D 게임</div>
         <button
-          onClick={() => setGameStarted(true)}
+          onClick={handleStartGame}
           className="px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-800 text-white text-xl rounded-full hover:scale-105 transition-transform"
         >
           🎮 게임 시작
@@ -542,7 +571,7 @@ export function FPSGame({ items, onComplete }: FPSGameProps) {
         <h1 className="text-6xl font-bold mb-4 text-red-400">🎮 GAME OVER</h1>
         <div className="text-2xl mb-8 text-white">최종 점수: {score}</div>
         <button
-          onClick={() => onComplete(results)}
+          onClick={() => handleCompleteWithLog(results)}
           className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-800 text-white text-xl rounded-full hover:scale-105 transition-transform"
         >
           결과 확인

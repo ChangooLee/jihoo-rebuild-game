@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { LearningItem } from '@/lib/types';
+import { db } from '@/lib/db';
+import { MathRenderer } from '@/components/MathRenderer';
 
 export interface SpeedCalculationProps {
   items: LearningItem[];
@@ -22,13 +24,18 @@ export function SpeedCalculation({
   const [results, setResults] = useState<{ itemId: string; correct: boolean; latencyMs: number }[]>([]);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [remainingTime, setRemainingTime] = useState(timeLimit);
+  const gameStartTimeRef = useRef<number | null>(null);
 
   const currentItem = items[currentIndex];
   const isComplete = currentIndex >= items.length || remainingTime <= 0;
 
   useEffect(() => {
     if (currentIndex < items.length && !startTime) {
-      setStartTime(Date.now());
+      const now = Date.now();
+      setStartTime(now);
+      if (!gameStartTimeRef.current) {
+        gameStartTimeRef.current = now;
+      }
     }
   }, [currentIndex, items.length, startTime]);
 
@@ -81,7 +88,23 @@ export function SpeedCalculation({
     }
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
+    // 게임 실행 시간 기록
+    if (gameStartTimeRef.current) {
+      const durationSec = Math.floor((Date.now() - gameStartTimeRef.current) / 1000);
+      await db.gameLogs.add({
+        gameType: 'speed-calculation',
+        subject: 'math',
+        startTime: gameStartTimeRef.current,
+        durationSec,
+        result: {
+          totalItems: items.length,
+          correct: results.filter((r) => r.correct).length,
+          incorrect: results.filter((r) => !r.correct).length,
+        },
+        completed: true,
+      });
+    }
     onComplete(results);
   };
 
@@ -111,7 +134,7 @@ export function SpeedCalculation({
       </div>
 
       <div className="text-4xl font-bold mb-8">
-        {problemText}
+        <MathRenderer content={problemText} />
       </div>
 
       <div className="mb-4">

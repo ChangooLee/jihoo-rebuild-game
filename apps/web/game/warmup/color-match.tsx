@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { db } from '@/lib/db';
 
 export interface ColorMatchResult {
   correct: number;
@@ -37,12 +38,32 @@ export function ColorMatchGame({ onComplete, duration = 90 }: ColorMatchGameProp
   const [remainingTime, setRemainingTime] = useState(duration);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [showColors, setShowColors] = useState(false);
+  const gameStartTimeRef = useRef<number | null>(null);
+  
+  // Initialize game start time
+  useEffect(() => {
+    if (!gameStartTimeRef.current) {
+      gameStartTimeRef.current = Date.now();
+    }
+  }, []);
 
   useEffect(() => {
     if (remainingTime <= 0) {
       const avgReactionTime = reactionTimes.length > 0
         ? reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length
         : 0;
+      // 게임 실행 시간 기록
+      if (gameStartTimeRef.current) {
+        const durationSec = Math.floor((Date.now() - gameStartTimeRef.current) / 1000);
+        db.gameLogs.add({
+          gameType: 'color-match',
+          subject: 'warmup',
+          startTime: gameStartTimeRef.current,
+          durationSec,
+          result: { correct, incorrect, avgReactionTime },
+          completed: true,
+        });
+      }
       onComplete({ correct, incorrect, avgReactionTime });
       return;
     }

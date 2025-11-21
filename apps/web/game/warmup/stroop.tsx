@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { db } from '@/lib/db';
 
 export interface StroopResult {
   correct: number;
@@ -26,6 +27,14 @@ export function StroopTask({ onComplete, duration = 90 }: StroopTaskProps) {
   const [reactionTimes, setReactionTimes] = useState<number[]>([]);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [remainingTime, setRemainingTime] = useState(duration);
+  const gameStartTimeRef = useRef<number | null>(null);
+  
+  // Initialize game start time
+  useEffect(() => {
+    if (!gameStartTimeRef.current) {
+      gameStartTimeRef.current = Date.now();
+    }
+  }, []);
 
   const colors = ['red', 'blue', 'green', 'yellow'];
   const colorNames = ['빨강', '파랑', '초록', '노랑'];
@@ -35,6 +44,18 @@ export function StroopTask({ onComplete, duration = 90 }: StroopTaskProps) {
       const avgReactionTime = reactionTimes.length > 0
         ? reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length
         : 0;
+      // 게임 실행 시간 기록
+      if (gameStartTimeRef.current) {
+        const durationSec = Math.floor((Date.now() - gameStartTimeRef.current) / 1000);
+        db.gameLogs.add({
+          gameType: 'stroop',
+          subject: 'warmup',
+          startTime: gameStartTimeRef.current,
+          durationSec,
+          result: { correct, incorrect, avgReactionTime },
+          completed: true,
+        });
+      }
       onComplete({ correct, incorrect, avgReactionTime });
       return;
     }

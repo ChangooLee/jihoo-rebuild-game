@@ -1,5 +1,5 @@
 import { db } from './db';
-import type { LearningItem, ReviewState, SessionLog } from './types';
+import type { LearningItem, ReviewState, SessionLog, GameLog } from './types';
 
 /**
  * 데이터 관리 모듈
@@ -15,6 +15,7 @@ export class DataManager {
       reviewStates: await db.reviewStates.toArray(),
       sessionLogs: await db.sessionLogs.toArray(),
       userProfile: await db.userProfile.toArray(),
+      gameLogs: await db.gameLogs.toArray(),
       exportDate: new Date().toISOString(),
     };
     
@@ -42,6 +43,10 @@ export class DataManager {
     if (data.userProfile) {
       await db.userProfile.bulkPut(data.userProfile);
     }
+
+    if (data.gameLogs) {
+      await db.gameLogs.bulkPut(data.gameLogs);
+    }
   }
 
   /**
@@ -53,13 +58,14 @@ export class DataManager {
       db.reviewStates.clear(),
       db.sessionLogs.clear(),
       db.userProfile.clear(),
+      db.gameLogs.clear(),
     ]);
   }
 
   /**
    * 특정 타입만 삭제
    */
-  async deleteByType(type: 'learningItems' | 'reviewStates' | 'sessionLogs' | 'userProfile'): Promise<void> {
+  async deleteByType(type: 'learningItems' | 'reviewStates' | 'sessionLogs' | 'userProfile' | 'gameLogs'): Promise<void> {
     await db[type].clear();
   }
 }
